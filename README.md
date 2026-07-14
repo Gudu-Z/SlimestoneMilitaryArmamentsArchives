@@ -1,0 +1,2 @@
+# SlimestoneMilitaryArmamentsArchives
+军用绿萌军备的档案馆，用来存放开源的机器投影、《从0开始的JE航械入门》视频稿等
