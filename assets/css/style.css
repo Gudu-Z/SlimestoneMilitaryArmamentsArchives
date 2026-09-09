@@ -12,15 +12,6 @@
   font-display: swap;
 }
 
-/* ---------- 中文字体（站酷庆科黄油体） ---------- */
-@font-face {
-  font-family: "ZCOOLQingKeHuangYou";
-  src: url("../fonts/ZCOOLQingKeHuangYou.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
 /* ---------- 变量与设计令牌 ---------- */
 :root {
   --bg: #08080a;
@@ -54,7 +45,7 @@
   --glow-green: 0 0 24px rgba(107, 224, 74, 0.35);
   --glow-yellow: 0 0 24px rgba(255, 214, 10, 0.30);
 
-  --font-display: "Nasalization", "Space Grotesk", "ZCOOLQingKeHuangYou",
+  --font-display: "Nasalization", "Space Grotesk",
     "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
   --font-sans: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei",
     "Noto Sans SC", sans-serif;
