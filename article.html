@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>视频教程 · 军用绿萌军备档案馆</title>
-  <meta name="description" content="《从0开始的 JE 航械入门》系列视频稿——航械定义、时序分析、实用模组推荐。" />
+  <title>文章 · 军用绿萌军备档案馆</title>
+  <meta name="description" content="军用绿萌军备（SMA）档案馆——Java 版 Minecraft 航械领域教程文章。" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -36,36 +36,31 @@
   <main class="page">
     <div class="container">
       <div class="page-head">
-        <div class="breadcrumb"><a href="index.html#home">首页</a><span>/</span>教程</div>
-        <h1>视频教程</h1>
+        <div class="breadcrumb"><a href="index.html#home">首页</a><span>/</span><a href="tutorials.html">教程</a><span>/</span><span id="article-crumb">文章</span></div>
+        <h1 id="article-title">加载中…</h1>
         <div class="meta">
           <span class="tag tag--green">从0开始的 JE 航械入门</span>
-          <span class="tag">持续更新中</span>
+          <span class="tag" id="article-tag">…</span>
         </div>
       </div>
 
-      <div class="grid">
-        <a class="card card--green" href="article.html?article=xuzhang">
-          <span class="card-num">EP.00</span>
-          <h3>序章 · 航械是什么？</h3>
-          <p>了解航械的定义与定位、本系列教程的前置知识，以及一批优质的入门资源推荐。</p>
-          <span class="card-foot">阅读全文 →</span>
-        </a>
-
-        <a class="card card--yellow" href="article.html?article=01">
-          <span class="card-num">EP.01</span>
-          <h3>第一期 · 航械入门，从手搓第一台飞行器开始</h3>
-          <p>手搓你的第一台绿萌飞行器，并走一遍最基础的飞行器时序，认识侦测器、活塞与微时序阶段。</p>
-          <span class="card-foot">阅读全文 →</span>
-        </a>
-
-        <a class="card" href="article.html?article=appendix1">
-          <span class="card-num">APPENDIX</span>
-          <h3>附录 1 · 实用模组</h3>
-          <p>Carpet 系列、Masa 全家桶、可视化模组、辅助建造模组——搓机体验提升必备清单。</p>
-          <span class="card-foot">阅读全文 →</span>
-        </a>
+      <div class="page-layout">
+        <article class="prose" id="article-body">
+          <p>正在加载文章…</p>
+        </article>
+        <aside class="toc">
+          <div class="toc-block">
+            <div class="toc-title">文章目录</div>
+            <ul class="toc-articles" id="toc-articles"></ul>
+          </div>
+          <div class="toc-block">
+            <div class="toc-title">本页目录</div>
+            <ul class="toc-sections" id="toc-sections"></ul>
+          </div>
+        </aside>
       </div>
+
+      <nav class="post-nav" id="post-nav"></nav>
     </div>
   </main>
 
@@ -81,6 +76,8 @@
   </footer>
 
   <script src="assets/js/search-data.js"></script>
+  <script src="assets/js/articles-data.js"></script>
+  <script src="assets/js/marked.min.js"></script>
   <script src="assets/js/main.js"></script>
 </body>
 </html>
