@@ -1,20 +1,28 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
+import { SERIES } from '../../data/series';
 
 export async function getStaticPaths() {
   const entries = await getCollection('articles');
   return entries.map((entry) => ({
-    params: { slug: entry.slug },
+    params: { slug: entry.id },
     props: { entry },
   }));
 }
 
 const { entry } = Astro.props;
-const { Content, headings } = await entry.render();
+const { Content, headings } = await render(entry);
 
-const all = (await getCollection('articles')).sort((a, b) => a.data.order - b.data.order);
-const idx = all.findIndex((a) => a.slug === entry.slug);
+const seriesSlug = entry.id.split('/')[0];
+const series = SERIES.find((s) => s.slug === seriesSlug);
+
+// 同一系列下的文章，按 order 排序（目录侧栏与上下章都只在本系列内）
+const all = (await getCollection('articles'))
+  .filter((a) => a.id.split('/')[0] === seriesSlug)
+  .sort((a, b) => a.data.order - b.data.order);
+
+const idx = all.findIndex((a) => a.id === entry.id);
 const prev = idx > 0 ? all[idx - 1] : null;
 const next = idx < all.length - 1 ? all[idx + 1] : null;
 
@@ -28,7 +36,7 @@ const crumbLabel = (entry.data.title || '').split(' · ')[0].trim();
         <div class="breadcrumb"><a href="/">首页</a><span>/</span><a href="/tutorials/">教程</a><span>/</span>{crumbLabel}</div>
         <h1>{entry.data.title}</h1>
         <div class="meta">
-          <span class="tag tag--green">从0开始的 JE 航械入门</span>
+          <span class="tag tag--green">{series ? series.name : seriesSlug}</span>
           <span class="tag">{entry.data.tag}</span>
         </div>
       </div>
@@ -43,7 +51,7 @@ const crumbLabel = (entry.data.title || '').split(' · ')[0].trim();
             <ul class="toc-articles">
               {all.map((a) => (
                 <li>
-                  <a href={`/articles/${a.slug}/`} class={a.slug === entry.slug ? 'active' : undefined}>
+                  <a href={`/articles/${a.id}/`} class={a.id === entry.id ? 'active' : undefined}>
                     {a.data.short || a.data.title}
                   </a>
                 </li>
@@ -69,7 +77,7 @@ const crumbLabel = (entry.data.title || '').split(' · ')[0].trim();
 
       <nav class="post-nav">
         {prev ? (
-          <a class="post-nav-prev" href={`/articles/${prev.slug}/`}>
+          <a class="post-nav-prev" href={`/articles/${prev.id}/`}>
             <span class="post-nav-label">← 上一章</span>
             <span class="post-nav-title">{prev.data.short || prev.data.title}</span>
           </a>
@@ -80,7 +88,7 @@ const crumbLabel = (entry.data.title || '').split(' · ')[0].trim();
           </a>
         )}
         {next ? (
-          <a class="post-nav-next" href={`/articles/${next.slug}/`}>
+          <a class="post-nav-next" href={`/articles/${next.id}/`}>
             <span class="post-nav-label">下一章 →</span>
             <span class="post-nav-title">{next.data.short || next.data.title}</span>
           </a>

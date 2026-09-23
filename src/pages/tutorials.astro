@@ -1,8 +1,19 @@
 ---
 import Base from '../layouts/Base.astro';
 import { getCollection } from 'astro:content';
+import { SERIES } from '../data/series';
 
-const articles = (await getCollection('articles')).sort((a, b) => a.data.order - b.data.order);
+const articles = await getCollection('articles');
+
+// 按系列分组展示，系列按 order 排序
+const seriesGroups = SERIES
+  .sort((a, b) => a.order - b.order)
+  .map((s) => ({
+    series: s,
+    articles: articles
+      .filter((a) => a.id.split('/')[0] === s.slug)
+      .sort((a, b) => a.data.order - b.data.order),
+  }));
 ---
 
 <Base
@@ -15,21 +26,28 @@ const articles = (await getCollection('articles')).sort((a, b) => a.data.order -
         <div class="breadcrumb"><a href="/">首页</a><span>/</span>教程</div>
         <h1>视频教程</h1>
         <div class="meta">
-          <span class="tag tag--green">从0开始的 JE 航械入门</span>
+          <span class="tag tag--green">{SERIES.length} 个系列</span>
           <span class="tag">持续更新中</span>
         </div>
       </div>
 
-      <div class="grid">
-        {articles.map((a) => (
-          <a class={`card ${a.data.color ? `card--${a.data.color}` : ''}`} href={`/articles/${a.slug}/`}>
-            <span class="card-num">{a.data.tag}</span>
-            <h3>{a.data.title}</h3>
-            <p>{a.data.summary || a.data.description}</p>
-            <span class="card-foot">阅读全文 →</span>
-          </a>
-        ))}
-      </div>
+      {seriesGroups.map(({ series, articles }) => (
+        <section class="cat-section">
+          <h2 class="cat-title">
+            {series.name} <span class="count">{articles.length}</span>
+          </h2>
+          <div class="grid">
+            {articles.map((a) => (
+              <a class={`card ${a.data.color ? `card--${a.data.color}` : ''}`} href={`/articles/${a.id}/`}>
+                <span class="card-num">{a.data.tag}</span>
+                <h3>{a.data.title}</h3>
+                <p>{a.data.summary || a.data.description}</p>
+                <span class="card-foot">阅读全文 →</span>
+              </a>
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
   </main>
 </Base>

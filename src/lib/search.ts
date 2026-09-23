@@ -17,7 +17,7 @@ export async function buildSearchIndex(): Promise<SearchEntry[]> {
     .map((a) => ({
       type: 'article',
       title: a.data.title,
-      url: `/articles/${a.slug}/`,
+      url: `/articles/${a.id}/`,
       keys: a.data.keywords || '',
     }));
 

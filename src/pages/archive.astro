@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
 import { PROJECTIONS, CATEGORIES } from '../data/projections';
 
 // 给每个文件带上稳定锚点序号（与搜索索引一致），并按分类分组
@@ -10,6 +11,9 @@ const grouped = CATEGORIES.map((cat) => ({
 })).filter((g) => g.files.length > 0);
 
 const rarCount = PROJECTIONS.filter((p) => p.title.endsWith('.rar')).length;
+
+const articles = await getCollection('articles');
+const appendix = articles.find((a) => a.data.tag === 'APPENDIX');
 ---
 
 <Base
@@ -28,7 +32,7 @@ const rarCount = PROJECTIONS.filter((p) => p.title.endsWith('.rar')).length;
       </div>
 
       <p class="note">
-        所有投影均为 <strong>.litematic</strong> 文件，可用 <a href="/articles/appendix1/" style="color:var(--green-bright)">Litematica 投影模组</a>载入使用；其中 {rarCount} 个 <strong>.rar</strong> 为打包合集，解压后使用。点击右侧「下载」即可获取文件。
+        所有投影均为 <strong>.litematic</strong> 文件，可用 <a href={appendix ? `/articles/${appendix.id}/` : '/tutorials/'} style="color:var(--green-bright)">Litematica 投影模组</a>载入使用；其中 {rarCount} 个 <strong>.rar</strong> 为打包合集，解压后使用。点击右侧「下载」即可获取文件。
       </p>
 
       <nav class="cat-nav" style="margin-top:32px">
