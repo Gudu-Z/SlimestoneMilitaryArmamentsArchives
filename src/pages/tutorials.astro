@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const articles = (await getCollection('articles')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<Base
+  title="视频教程 · 军用绿萌军备档案馆"
+  description="《从0开始的 JE 航械入门》系列视频稿——航械定义、时序分析、实用模组推荐。"
+>
+  <main class="page">
+    <div class="container">
+      <div class="page-head">
+        <div class="breadcrumb"><a href="/">首页</a><span>/</span>教程</div>
+        <h1>视频教程</h1>
+        <div class="meta">
+          <span class="tag tag--green">从0开始的 JE 航械入门</span>
+          <span class="tag">持续更新中</span>
+        </div>
+      </div>
+
+      <div class="grid">
+        {articles.map((a) => (
+          <a class={`card ${a.data.color ? `card--${a.data.color}` : ''}`} href={`/articles/${a.slug}/`}>
+            <span class="card-num">{a.data.tag}</span>
+            <h3>{a.data.title}</h3>
+            <p>{a.data.summary || a.data.description}</p>
+            <span class="card-foot">阅读全文 →</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </main>
+</Base>

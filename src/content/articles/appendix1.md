@@ -1,3 +1,13 @@
+---
+title: "附录 1 · 实用模组"
+short: "附录1 · 实用模组"
+description: "航械搓机必备模组清单——Carpet 系列、Masa 全家桶、可视化模组、辅助建造模组。"
+summary: "Carpet 系列、Masa 全家桶、可视化模组、辅助建造模组——搓机体验提升必备清单。"
+order: 3
+tag: "APPENDIX"
+keywords: "模组 Carpet 投影 Litematica 创世神 WorldEdit Axiom 客户端"
+---
+
 ## 1. 地毯 Carpet 相关
 **1.1 Carpet 地毯【⭐⭐⭐⭐⭐】**
 >适用版本：1.11.2 - 最新版本

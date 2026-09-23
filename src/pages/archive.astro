@@ -1,0 +1,62 @@
+---
+import Base from '../layouts/Base.astro';
+import { PROJECTIONS, CATEGORIES } from '../data/projections';
+
+// 给每个文件带上稳定锚点序号（与搜索索引一致），并按分类分组
+const filesWithIndex = PROJECTIONS.map((p, i) => ({ ...p, idx: i + 1 }));
+const grouped = CATEGORIES.map((cat) => ({
+  cat,
+  files: filesWithIndex.filter((f) => f.category === cat),
+})).filter((g) => g.files.length > 0);
+
+const rarCount = PROJECTIONS.filter((p) => p.title.endsWith('.rar')).length;
+---
+
+<Base
+  title="投影档案馆 · 军用绿萌军备档案馆"
+  description="军用绿萌军备开源机器投影档案馆——按分类浏览并下载 .litematic 投影文件。"
+>
+  <main class="page">
+    <div class="container">
+      <div class="page-head">
+        <div class="breadcrumb"><a href="/">首页</a><span>/</span>档案馆</div>
+        <h1>投影档案馆</h1>
+        <div class="meta">
+          <span class="tag tag--green">Litematica 投影</span>
+          <span class="tag">{grouped.length} 大类 · {PROJECTIONS.length} 个文件</span>
+        </div>
+      </div>
+
+      <p class="note">
+        所有投影均为 <strong>.litematic</strong> 文件，可用 <a href="/articles/appendix1/" style="color:var(--green-bright)">Litematica 投影模组</a>载入使用；其中 {rarCount} 个 <strong>.rar</strong> 为打包合集，解压后使用。点击右侧「下载」即可获取文件。
+      </p>
+
+      <nav class="cat-nav" style="margin-top:32px">
+        {grouped.map((g, i) => (
+          <a href={`#cat-${i}`}>{g.cat}</a>
+        ))}
+      </nav>
+
+      {grouped.map((g, i) => (
+        <section class="cat-section" id={`cat-${i}`}>
+          <h2 class="cat-title">
+            {g.cat} <span class="count">{g.files.length}</span>
+          </h2>
+          <div class="file-list">
+            {g.files.map((f) => {
+              const isRar = f.title.endsWith('.rar');
+              const href = `/投影文件/${encodeURIComponent(f.category)}/${encodeURIComponent(f.title)}`;
+              return (
+                <div id={`f-${f.idx}`} class={`file-item${isRar ? ' file-item--yellow' : ''}`}>
+                  <span class="file-icon">{isRar ? 'RAR' : 'LIT'}</span>
+                  <span class="file-name">{f.title}</span>
+                  <a class="file-dl" href={href} download>下载</a>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      ))}
+    </div>
+  </main>
+</Base>

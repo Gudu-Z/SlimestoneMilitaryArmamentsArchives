@@ -1,48 +1,15 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>军用绿萌军备档案馆 · SMA Archives</title>
-  <meta name="description" content="军用绿萌军备（Slimestone Military Armaments）档案馆——Java 版 Minecraft 航械领域开源机器投影与视频教程。" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/style.css" />
-  <script>
-    // 首次进入首页（无 #home 锚点）时，在渲染前隐藏导航，避免闪烁
-    if (location.hash !== "#home") {
-      document.documentElement.classList.add("home-fresh");
-    }
-  </script>
-</head>
-<body class="is-home">
-  <header class="site-header">
-    <div class="container nav-wrap">
-      <a class="brand" href="index.html#home">
-        <img class="brand-logo" src="assets/img/logo.png" alt="SMA" />
-        <span class="brand-text">
-          军用绿萌军备
-          <small>SLIMESTONE MILITARY ARMAMENTS</small>
-        </span>
-      </a>
-      <button class="nav-toggle" aria-label="打开菜单" aria-expanded="false">☰</button>
-      <nav class="site-nav">
-        <a href="index.html#home" class="active">首页</a>
-        <a href="tutorials.html">教程</a>
-        <a href="archive.html">档案馆</a>
-      </nav>
-      <div class="nav-search">
-        <input type="search" class="search-input" placeholder="搜索文章 / 投影…" aria-label="搜索" />
-        <div class="search-results" hidden></div>
-      </div>
-    </div>
-  </header>
+---
+import Base from '../layouts/Base.astro';
+---
 
+<Base
+  bodyClass="is-home"
+  title="军用绿萌军备档案馆 · SMA Archives"
+  description="军用绿萌军备（Slimestone Military Armaments）档案馆——Java 版 Minecraft 航械领域开源机器投影与视频教程。"
+>
   <main>
-    <!-- Hero（全屏首屏：仅 logo + 标题居中，下滑后才见导航与下方内容） -->
     <section class="hero hero--landing">
-      <img class="hero-logo" src="assets/img/logo.png" alt="SMA" />
+      <img class="hero-logo" src="/assets/img/logo.png" alt="SMA" />
       <h1 class="hero-title">
         军用绿萌军备
         <span class="hero-title-en">Slimestone Military Armaments</span>
@@ -50,7 +17,6 @@
       <div class="scroll-hint" aria-hidden="true"><span></span></div>
     </section>
 
-    <!-- 快速入口 -->
     <section class="section reveal">
       <div class="container">
         <div class="section-head">
@@ -58,13 +24,13 @@
           <h2 class="section-title">快速入口</h2>
         </div>
         <div class="grid grid--3">
-          <a class="card card--green" href="tutorials.html">
+          <a class="card card--green" href="/tutorials/">
             <span class="card-num">01</span>
             <h3>视频教程</h3>
             <p>《从0开始的 JE 航械入门》系列视频稿，含时序、微时序等红石进阶知识，图文并茂。</p>
             <span class="card-foot">阅读全文 →</span>
           </a>
-          <a class="card card--yellow" href="archive.html">
+          <a class="card card--yellow" href="/archive/">
             <span class="card-num">02</span>
             <h3>投影档案馆</h3>
             <p>46+ 台开源机器投影（.litematic），涵盖导弹、炮、飞船成品、TNT 复制结构等 11 大类。</p>
@@ -80,7 +46,6 @@
       </div>
     </section>
 
-    <!-- 关于我们 -->
     <section class="section reveal" id="about">
       <div class="container">
         <div class="section-head">
@@ -102,19 +67,4 @@
       </div>
     </section>
   </main>
-
-  <footer class="site-footer">
-    <div class="container">
-      <span class="brand-text">
-        军用绿萌军备
-        <small>SLIMESTONE MILITARY ARMAMENTS</small>
-      </span>
-      <a href="https://qm.qq.com/q/JsLciG3w0U" target="_blank" rel="noopener">QQ 群：993080537</a>
-      <span>© 2026 SMA Archives</span>
-    </div>
-  </footer>
-
-  <script src="assets/js/search-data.js"></script>
-  <script src="assets/js/main.js"></script>
-</body>
-</html>
+</Base>

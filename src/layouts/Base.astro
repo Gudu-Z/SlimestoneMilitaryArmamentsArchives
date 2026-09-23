@@ -1,0 +1,276 @@
+---
+import '../styles/global.css';
+import { buildSearchIndex } from '../lib/search';
+
+interface Props {
+  title?: string;
+  description?: string;
+  bodyClass?: string;
+}
+
+const {
+  title = '军用绿萌军备档案馆 · SMA Archives',
+  description = '军用绿萌军备（Slimestone Military Armaments）档案馆——Java 版 Minecraft 航械领域开源机器投影与视频教程。',
+  bodyClass = '',
+} = Astro.props;
+
+const searchIndex = await buildSearchIndex();
+
+const path = Astro.url.pathname;
+const navItems = [
+  { key: 'home', href: '/#home', label: '首页' },
+  { key: 'tutorials', href: '/tutorials/', label: '教程' },
+  { key: 'archive', href: '/archive/', label: '档案馆' },
+];
+function isActive(key: string): boolean {
+  if (key === 'home') return path === '/';
+  if (key === 'tutorials') return path.startsWith('/tutorials') || path.startsWith('/articles');
+  if (key === 'archive') return path.startsWith('/archive');
+  return false;
+}
+
+const isHome = bodyClass.includes('is-home');
+---
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    {isHome && (
+      <script is:inline>
+        if (location.hash !== "#home") {
+          document.documentElement.classList.add("home-fresh");
+        }
+      </script>
+    )}
+  </head>
+  <body class={bodyClass}>
+    <header class="site-header">
+      <div class="container nav-wrap">
+        <a class="brand" href="/#home">
+          <img class="brand-logo" src="/assets/img/logo.png" alt="SMA" />
+          <span class="brand-text">
+            军用绿萌军备
+            <small>SLIMESTONE MILITARY ARMAMENTS</small>
+          </span>
+        </a>
+        <button class="nav-toggle" aria-label="打开菜单" aria-expanded="false">☰</button>
+        <nav class="site-nav">
+          {navItems.map((item) => (
+            <a href={item.href} class={isActive(item.key) ? 'active' : undefined}>
+              {item.label}
+            </a>
+          ))}
+        </nav>
+        <div class="nav-search">
+          <input type="search" class="search-input" placeholder="搜索文章 / 投影…" aria-label="搜索" />
+          <div class="search-results" hidden></div>
+        </div>
+      </div>
+    </header>
+
+    <slot />
+
+    <footer class="site-footer">
+      <div class="container">
+        <span class="brand-text">
+          军用绿萌军备
+          <small>SLIMESTONE MILITARY ARMAMENTS</small>
+        </span>
+        <a href="https://qm.qq.com/q/JsLciG3w0U" target="_blank" rel="noopener">QQ 群：993080537</a>
+        <span>© 2026 SMA Archives</span>
+      </div>
+    </footer>
+
+    <script define:vars={{ searchIndex }}>
+      // ---------- 移动端导航切换 ----------
+      var toggle = document.querySelector('.nav-toggle');
+      var nav = document.querySelector('.site-nav');
+
+      if (toggle && nav) {
+        toggle.addEventListener('click', function () {
+          var open = nav.classList.toggle('open');
+          toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+          toggle.textContent = open ? '✕' : '☰';
+        });
+        nav.addEventListener('click', function (e) {
+          if (e.target.tagName === 'A' && nav.classList.contains('open')) {
+            nav.classList.remove('open');
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.textContent = '☰';
+          }
+        });
+      }
+
+      // ---------- 导航滑动指示器 ----------
+      var navLinks = nav ? nav.querySelectorAll('a') : [];
+      if (nav && navLinks.length) {
+        var indicator = document.createElement('span');
+        indicator.className = 'nav-indicator';
+        nav.appendChild(indicator);
+        var activeLink = nav.querySelector('a.active') || navLinks[0];
+
+        function positionIndicator(link, instant) {
+          if (!link) return;
+          if (instant) indicator.style.transition = 'none';
+          indicator.style.width = link.offsetWidth + 'px';
+          indicator.style.height = link.offsetHeight + 'px';
+          indicator.style.transform =
+            'translateX(' + link.offsetLeft + 'px) translateY(' + link.offsetTop + 'px)';
+          if (instant) {
+            void indicator.offsetWidth;
+            indicator.style.transition = '';
+          }
+        }
+
+        positionIndicator(activeLink, true);
+
+        navLinks.forEach(function (link) {
+          link.addEventListener('mouseenter', function () {
+            positionIndicator(link);
+          });
+          link.addEventListener('mouseleave', function () {
+            positionIndicator(activeLink);
+          });
+        });
+
+        window.addEventListener('load', function () {
+          positionIndicator(activeLink, true);
+        });
+        window.addEventListener('resize', function () {
+          positionIndicator(activeLink, true);
+        });
+      }
+
+      // ---------- 首页：导航自动隐藏（顶部悬停显示、下滑常驻） ----------
+      if (document.body.classList.contains('is-home')) {
+        var header = document.querySelector('.site-header');
+        var threshold = 60;
+        var topZone = 96;
+        var fromInternal = location.hash === '#home';
+        if (fromInternal) {
+          try {
+            history.replaceState(null, '', location.pathname + location.search);
+          } catch (err) {}
+        }
+        document.documentElement.classList.remove('home-fresh');
+
+        var pointerY = fromInternal ? 0 : 9999;
+        function setNavHidden(hidden) {
+          if (header) header.classList.toggle('nav-hidden', hidden);
+        }
+        function updateNav() {
+          if (window.scrollY <= threshold) {
+            setNavHidden(pointerY > topZone);
+          } else {
+            setNavHidden(false);
+          }
+        }
+        document.addEventListener('mousemove', function (e) {
+          pointerY = e.clientY;
+          updateNav();
+        });
+        window.addEventListener('scroll', updateNav, { passive: true });
+        updateNav();
+      }
+
+      // ---------- 滚动浮现（reveal） ----------
+      var revealEls = document.querySelectorAll('.reveal');
+      if (revealEls.length) {
+        if ('IntersectionObserver' in window) {
+          var io = new IntersectionObserver(
+            function (entries) {
+              entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                  entry.target.classList.add('in-view');
+                  io.unobserve(entry.target);
+                }
+              });
+            },
+            { threshold: 0.15 }
+          );
+          revealEls.forEach(function (el) {
+            io.observe(el);
+          });
+        } else {
+          revealEls.forEach(function (el) {
+            el.classList.add('in-view');
+          });
+        }
+      }
+
+      // ---------- 顶部搜索 ----------
+      var searchBox = document.querySelector('.nav-search');
+      var searchInput = searchBox ? searchBox.querySelector('.search-input') : null;
+      var searchResults = searchBox ? searchBox.querySelector('.search-results') : null;
+
+      if (searchInput && searchResults && searchIndex) {
+        function norm(s) {
+          return (s || '').toLowerCase();
+        }
+        function esc(s) {
+          return String(s).replace(/[&<>"]/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+          });
+        }
+
+        function runSearch() {
+          var q = norm(searchInput.value.trim());
+          if (!q) {
+            searchResults.hidden = true;
+            searchResults.innerHTML = '';
+            return;
+          }
+          var toks = q.split(/\s+/);
+          var hits = searchIndex.filter(function (item) {
+            var hay = norm(item.title + ' ' + (item.cat || '') + ' ' + (item.keys || ''));
+            return toks.every(function (t) {
+              return hay.indexOf(t) !== -1;
+            });
+          });
+          var articles = hits.filter(function (i) {
+            return i.type === 'article';
+          });
+          var files = hits.filter(function (i) {
+            return i.type === 'file';
+          });
+
+          var html = '';
+          function row(item) {
+            var label = item.type === 'article' ? '文章' : '投影 · ' + item.cat;
+            return (
+              '<a class="search-item" href="' + item.url + '">' +
+              '<span class="search-item-label">' + esc(label) + '</span>' +
+              '<span class="search-item-title">' + esc(item.title) + '</span>' +
+              '</a>'
+            );
+          }
+          if (articles.length) html += '<div class="search-group">文章</div>' + articles.map(row).join('');
+          if (files.length) html += '<div class="search-group">投影文件</div>' + files.map(row).join('');
+          if (!articles.length && !files.length) html += '<div class="search-empty">无匹配结果</div>';
+
+          searchResults.innerHTML = html;
+          searchResults.hidden = false;
+        }
+
+        searchInput.addEventListener('input', runSearch);
+        searchInput.addEventListener('focus', runSearch);
+
+        searchResults.addEventListener('click', function (e) {
+          if (e.target.closest('a')) searchResults.hidden = true;
+        });
+        document.addEventListener('click', function (e) {
+          if (searchBox && !searchBox.contains(e.target)) searchResults.hidden = true;
+        });
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') searchResults.hidden = true;
+        });
+      }
+    </script>
+  </body>
+</html>

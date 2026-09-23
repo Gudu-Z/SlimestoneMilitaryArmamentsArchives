@@ -1,0 +1,96 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('articles');
+  return entries.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await entry.render();
+
+const all = (await getCollection('articles')).sort((a, b) => a.data.order - b.data.order);
+const idx = all.findIndex((a) => a.slug === entry.slug);
+const prev = idx > 0 ? all[idx - 1] : null;
+const next = idx < all.length - 1 ? all[idx + 1] : null;
+
+const crumbLabel = (entry.data.title || '').split(' · ')[0].trim();
+---
+
+<Base title={`${entry.data.title} · 军用绿萌军备档案馆`} description={entry.data.description}>
+  <main class="page">
+    <div class="container">
+      <div class="page-head">
+        <div class="breadcrumb"><a href="/">首页</a><span>/</span><a href="/tutorials/">教程</a><span>/</span>{crumbLabel}</div>
+        <h1>{entry.data.title}</h1>
+        <div class="meta">
+          <span class="tag tag--green">从0开始的 JE 航械入门</span>
+          <span class="tag">{entry.data.tag}</span>
+        </div>
+      </div>
+
+      <div class="page-layout">
+        <article class="prose">
+          <Content />
+        </article>
+        <aside class="toc">
+          <div class="toc-block">
+            <div class="toc-title">文章目录</div>
+            <ul class="toc-articles">
+              {all.map((a) => (
+                <li>
+                  <a href={`/articles/${a.slug}/`} class={a.slug === entry.slug ? 'active' : undefined}>
+                    {a.data.short || a.data.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div class="toc-block">
+            <div class="toc-title">本页目录</div>
+            <ul class="toc-sections">
+              {headings.length ? (
+                headings.map((h) => (
+                  <li class={h.depth === 3 ? 'toc-sub' : 'toc-top'}>
+                    <a href={`#${h.slug}`}>{h.text}</a>
+                  </li>
+                ))
+              ) : (
+                <li class="toc-empty">（无）</li>
+              )}
+            </ul>
+          </div>
+        </aside>
+      </div>
+
+      <nav class="post-nav">
+        {prev ? (
+          <a class="post-nav-prev" href={`/articles/${prev.slug}/`}>
+            <span class="post-nav-label">← 上一章</span>
+            <span class="post-nav-title">{prev.data.short || prev.data.title}</span>
+          </a>
+        ) : (
+          <a class="post-nav-prev" href="/tutorials/">
+            <span class="post-nav-label">← 返回</span>
+            <span class="post-nav-title">视频教程列表</span>
+          </a>
+        )}
+        {next ? (
+          <a class="post-nav-next" href={`/articles/${next.slug}/`}>
+            <span class="post-nav-label">下一章 →</span>
+            <span class="post-nav-title">{next.data.short || next.data.title}</span>
+          </a>
+        ) : (
+          <a class="post-nav-next" href="/tutorials/">
+            <span class="post-nav-label">返回 →</span>
+            <span class="post-nav-title">视频教程列表</span>
+          </a>
+        )}
+      </nav>
+    </div>
+  </main>
+</Base>

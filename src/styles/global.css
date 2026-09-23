@@ -6,7 +6,7 @@
 /* ---------- 英文字体（Nasalization，需提供 .otf 文件） ---------- */
 @font-face {
   font-family: "Nasalization";
-  src: url("../fonts/Nasalization.otf") format("opentype");
+  src: url("/fonts/Nasalization.otf") format("opentype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
