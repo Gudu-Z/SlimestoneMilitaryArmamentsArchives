@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import PageHeading from '../../components/PageHeading.astro';
 import { getCollection, render } from 'astro:content';
 import { SERIES } from '../../data/series';
 
@@ -30,75 +31,73 @@ const crumbLabel = (entry.data.title || '').split(' · ')[0].trim();
 ---
 
 <Base title={`${entry.data.title} · 军用绿萌军备档案馆`} description={entry.data.description}>
-  <main class="page">
+  <main class="page article-page" id="main-content">
     <div class="container">
-      <div class="page-head">
-        <div class="breadcrumb"><a href="/">首页</a><span>/</span><a href="/tutorials/">教程</a><span>/</span>{crumbLabel}</div>
-        <h1>{entry.data.title}</h1>
-        <div class="meta">
-          <span class="tag tag--green">{series ? series.name : seriesSlug}</span>
-          <span class="tag">{entry.data.tag}</span>
-        </div>
-      </div>
+      <PageHeading eyebrow={`FIELD NOTES / ${entry.data.tag}`} title={entry.data.title}>
+        <Fragment slot="breadcrumb"><a href="/#home">首页</a><span aria-hidden="true">/</span><a href="/tutorials/">教程</a><span aria-hidden="true">/</span><span aria-current="page">{crumbLabel}</span></Fragment>
+        <a href={`/tutorials/#series-${seriesSlug}`}>{series ? series.name : seriesSlug}</a><span>第 {idx + 1} / {all.length} 篇</span>
+      </PageHeading>
 
       <div class="page-layout">
-        <article class="prose">
-          <Content />
-        </article>
-        <aside class="toc">
-          <div class="toc-block">
-            <div class="toc-title">文章目录</div>
-            <ul class="toc-articles">
-              {all.map((a) => (
-                <li>
-                  <a href={`/articles/${a.id}/`} class={a.id === entry.id ? 'active' : undefined}>
-                    {a.data.short || a.data.title}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div class="toc-block">
-            <div class="toc-title">本页目录</div>
-            <ul class="toc-sections">
-              {headings.length ? (
-                headings.map((h) => (
-                  <li class={h.depth === 3 ? 'toc-sub' : 'toc-top'}>
-                    <a href={`#${h.slug}`}>{h.text}</a>
+        <aside class="toc" aria-label="文章导航">
+          <details class="toc-panel" open>
+            <summary>阅读导航 <span aria-hidden="true">⌄</span></summary>
+            <div class="toc-block">
+              <h2 class="toc-title">同系列文章</h2>
+              <ul class="toc-articles">
+                {all.map((a) => (
+                  <li>
+                    <a href={`/articles/${a.id}/`} class={a.id === entry.id ? 'active' : undefined} aria-current={a.id === entry.id ? 'page' : undefined}>
+                      {a.data.short || a.data.title}
+                    </a>
                   </li>
-                ))
-              ) : (
-                <li class="toc-empty">（无）</li>
-              )}
-            </ul>
-          </div>
+                ))}
+              </ul>
+            </div>
+            <div class="toc-block">
+              <h2 class="toc-title">本页目录</h2>
+              <ul class="toc-sections">
+                {headings.length ? (
+                  headings.map((h) => (
+                    <li class={h.depth === 3 ? 'toc-sub' : 'toc-top'}>
+                      <a href={`#${h.slug}`} data-section-link>{h.text}</a>
+                    </li>
+                  ))
+                ) : (
+                  <li class="toc-empty">（无）</li>
+                )}
+              </ul>
+            </div>
+          </details>
         </aside>
+        <div class="article-column">
+          <article class="prose"><Content /></article>
+          <nav class="post-nav" aria-label="上下章">
+            {prev ? (
+              <a class="post-nav-prev" href={`/articles/${prev.id}/`}>
+                <span class="post-nav-label">← 上一章</span>
+                <span class="post-nav-title">{prev.data.short || prev.data.title}</span>
+              </a>
+            ) : (
+              <a class="post-nav-prev" href="/tutorials/">
+                <span class="post-nav-label">← 返回</span>
+                <span class="post-nav-title">文章与教程</span>
+              </a>
+            )}
+            {next ? (
+              <a class="post-nav-next" href={`/articles/${next.id}/`}>
+                <span class="post-nav-label">下一章 →</span>
+                <span class="post-nav-title">{next.data.short || next.data.title}</span>
+              </a>
+            ) : (
+              <a class="post-nav-next" href="/tutorials/">
+                <span class="post-nav-label">返回 →</span>
+                <span class="post-nav-title">文章与教程</span>
+              </a>
+            )}
+          </nav>
+        </div>
       </div>
-
-      <nav class="post-nav">
-        {prev ? (
-          <a class="post-nav-prev" href={`/articles/${prev.id}/`}>
-            <span class="post-nav-label">← 上一章</span>
-            <span class="post-nav-title">{prev.data.short || prev.data.title}</span>
-          </a>
-        ) : (
-          <a class="post-nav-prev" href="/tutorials/">
-            <span class="post-nav-label">← 返回</span>
-            <span class="post-nav-title">视频教程列表</span>
-          </a>
-        )}
-        {next ? (
-          <a class="post-nav-next" href={`/articles/${next.id}/`}>
-            <span class="post-nav-label">下一章 →</span>
-            <span class="post-nav-title">{next.data.short || next.data.title}</span>
-          </a>
-        ) : (
-          <a class="post-nav-next" href="/tutorials/">
-            <span class="post-nav-label">返回 →</span>
-            <span class="post-nav-title">视频教程列表</span>
-          </a>
-        )}
-      </nav>
     </div>
   </main>
 </Base>

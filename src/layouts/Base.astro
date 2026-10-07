@@ -18,9 +18,9 @@ const searchIndex = await buildSearchIndex();
 
 const path = Astro.url.pathname;
 const navItems = [
-  { key: 'home', href: '/#home', label: '首页' },
-  { key: 'tutorials', href: '/tutorials/', label: '教程' },
-  { key: 'archive', href: '/archive/', label: '档案馆' },
+  { key: 'home', href: '/#home', label: '首页', icon: 'm3 10 9-7 9 7M5 9v11h5v-6h4v6h5V9' },
+  { key: 'tutorials', href: '/tutorials/', label: '教程', icon: 'M12 5v15M12 5C9 3 5 3 2 4v15c3-1 7-1 10 1 3-2 7-2 10-1V4c-3-1-7-1-10 1Z' },
+  { key: 'archive', href: '/archive/', label: '档案馆', icon: 'M3 3h18v5H3zM5 8v13h14V8M9 12h6' },
 ];
 function isActive(key: string): boolean {
   if (key === 'home') return path === '/';
@@ -51,26 +51,35 @@ const isHome = bodyClass.includes('is-home');
     )}
   </head>
   <body class={bodyClass}>
+    <a class="skip-link" href="#main-content">跳到正文</a>
     <header class="site-header">
       <div class="container nav-wrap">
         <a class="brand" href="/#home">
-          <img class="brand-logo" src="/assets/img/logo.png" alt="SMA" />
+          <img class="brand-logo" src="/assets/img/logo.png" alt="SMA" width="32" height="32" />
           <span class="brand-text">
             军用绿萌军备
             <small>SLIMESTONE MILITARY ARMAMENTS</small>
           </span>
         </a>
-        <button class="nav-toggle" aria-label="打开菜单" aria-expanded="false">☰</button>
-        <nav class="site-nav">
-          {navItems.map((item) => (
-            <a href={item.href} class={isActive(item.key) ? 'active' : undefined}>
-              {item.label}
-            </a>
-          ))}
-        </nav>
-        <div class="nav-search">
-          <input type="search" class="search-input" placeholder="搜索文章 / 投影…" aria-label="搜索" />
-          <div class="search-results" hidden></div>
+        <div class="nav-actions">
+          <div class="nav-search" role="search" aria-label="站内搜索">
+            <button class="search-toggle" type="button" aria-label="搜索文章或投影文件" aria-controls="site-search-field" aria-expanded="false">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5" /></svg>
+            </button>
+            <div class="search-field" id="site-search-field" aria-hidden="true" inert>
+              <input type="search" class="search-input" placeholder="搜索文章 / 投影…" aria-label="搜索文章或投影文件" aria-controls="search-results" autocomplete="off" tabindex="-1" />
+            </div>
+            <div class="search-results" id="search-results" role="region" aria-label="搜索结果" aria-hidden="true" inert></div>
+            <span class="search-status visually-hidden" role="status"></span>
+          </div>
+          <nav class="site-nav" id="site-navigation" aria-label="主导航">
+            {navItems.map((item) => (
+              <a href={item.href} class={`nav-link${isActive(item.key) ? ' active' : ''}`} aria-label={item.label} aria-current={isActive(item.key) ? 'page' : undefined}>
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d={item.icon} /></svg>
+                <span class="nav-label" style={`--label-width: ${item.label.length}em`} aria-hidden="true">{item.label}</span>
+              </a>
+            ))}
+          </nav>
         </div>
       </div>
     </header>
@@ -79,73 +88,79 @@ const isHome = bodyClass.includes('is-home');
 
     <footer class="site-footer">
       <div class="container">
-        <span class="brand-text">
+        <a class="brand" href="/#home"><img class="brand-logo" src="/assets/img/logo.png" alt="SMA" width="32" height="32" /><span class="brand-text">
           军用绿萌军备
           <small>SLIMESTONE MILITARY ARMAMENTS</small>
-        </span>
-        <a href="https://qm.qq.com/q/JsLciG3w0U" target="_blank" rel="noopener">QQ 群：993080537</a>
-        <span>© 2026 SMA Archives</span>
+        </span></a>
+        <a class="footer-contact" href="https://qm.qq.com/q/JsLciG3w0U" target="_blank" rel="noopener">加入 QQ 群 · 993080537 ↗</a>
+        <span class="footer-copyright">© 2026 SMA Archives</span>
       </div>
     </footer>
 
     <script define:vars={{ searchIndex }}>
-      // ---------- 移动端导航切换 ----------
-      var toggle = document.querySelector('.nav-toggle');
+      // ---------- 图标导航与滑动指示器 ----------
       var nav = document.querySelector('.site-nav');
-
-      if (toggle && nav) {
-        toggle.addEventListener('click', function () {
-          var open = nav.classList.toggle('open');
-          toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-          toggle.textContent = open ? '✕' : '☰';
-        });
-        nav.addEventListener('click', function (e) {
-          if (e.target.tagName === 'A' && nav.classList.contains('open')) {
-            nav.classList.remove('open');
-            toggle.setAttribute('aria-expanded', 'false');
-            toggle.textContent = '☰';
-          }
-        });
-      }
-
-      // ---------- 导航滑动指示器 ----------
-      var navLinks = nav ? nav.querySelectorAll('a') : [];
+      var navLinks = nav ? nav.querySelectorAll('.nav-link') : [];
+      var canHover = matchMedia('(hover: hover) and (pointer: fine)');
+      var reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
       if (nav && navLinks.length) {
         var indicator = document.createElement('span');
         indicator.className = 'nav-indicator';
+        indicator.setAttribute('aria-hidden', 'true');
         nav.appendChild(indicator);
         var activeLink = nav.querySelector('a.active') || navLinks[0];
+        var hoveredLink = null;
+        var indicatorFrame = 0;
+        var lastFrameTime = 0;
+        var indicatorRect = null;
 
-        function positionIndicator(link, instant) {
-          if (!link) return;
-          if (instant) indicator.style.transition = 'none';
-          indicator.style.width = link.offsetWidth + 'px';
-          indicator.style.height = link.offsetHeight + 'px';
-          indicator.style.transform =
-            'translateX(' + link.offsetLeft + 'px) translateY(' + link.offsetTop + 'px)';
-          if (instant) {
-            void indicator.offsetWidth;
-            indicator.style.transition = '';
-          }
+        // 文字展开会持续改变按钮宽度，逐帧跟随可避免选中框闪跳。
+        function drawIndicator(time) {
+          indicatorFrame = 0;
+          var focusedLink = nav.contains(document.activeElement) ? document.activeElement.closest('.nav-link') : null;
+          var link = hoveredLink || focusedLink || activeLink;
+          var target = { x: link.offsetLeft, width: link.offsetWidth, height: link.offsetHeight };
+          var amount = reduceMotion.matches ? 1 : 1 - Math.exp(-Math.min(time - lastFrameTime || 16, 32) / 45);
+          lastFrameTime = time;
+          var moving = false;
+          if (!indicatorRect) indicatorRect = { ...target };
+          Object.keys(target).forEach(function (key) {
+            indicatorRect[key] += (target[key] - indicatorRect[key]) * amount;
+            if (Math.abs(target[key] - indicatorRect[key]) < 0.1) indicatorRect[key] = target[key];
+            else moving = true;
+          });
+          indicator.style.width = indicatorRect.width + 'px';
+          indicator.style.height = indicatorRect.height + 'px';
+          indicator.style.transform = 'translateX(' + indicatorRect.x + 'px)';
+          if (moving) followIndicator();
         }
-
-        positionIndicator(activeLink, true);
-
+        function followIndicator() {
+          if (!indicatorFrame) indicatorFrame = requestAnimationFrame(drawIndicator);
+        }
+        drawIndicator(performance.now());
+        nav.classList.add('has-indicator');
         navLinks.forEach(function (link) {
-          link.addEventListener('mouseenter', function () {
-            positionIndicator(link);
+          link.addEventListener('pointerenter', function (e) {
+            if (e.pointerType === 'mouse' && canHover.matches) { hoveredLink = link; followIndicator(); }
           });
-          link.addEventListener('mouseleave', function () {
-            positionIndicator(activeLink);
-          });
+          link.addEventListener('pointerleave', function () { hoveredLink = null; followIndicator(); });
         });
+        if ('ResizeObserver' in window) {
+          var navObserver = new ResizeObserver(followIndicator);
+          navLinks.forEach(function (link) { navObserver.observe(link); });
+        }
+        window.addEventListener('resize', followIndicator);
+        document.fonts.ready.then(followIndicator);
+        nav.addEventListener('focusin', followIndicator);
+        nav.addEventListener('focusout', followIndicator);
+      }
 
-        window.addEventListener('load', function () {
-          positionIndicator(activeLink, true);
-        });
-        window.addEventListener('resize', function () {
-          positionIndicator(activeLink, true);
-        });
+      // 用实际导航高度计算锚点位置。
+      var headerElement = document.querySelector('.site-header');
+      if (headerElement && 'ResizeObserver' in window) {
+        new ResizeObserver(function () {
+          document.documentElement.style.setProperty('--header-height', headerElement.offsetHeight + 'px');
+        }).observe(headerElement);
       }
 
       // ---------- 首页：导航自动隐藏（顶部悬停显示、下滑常驻） ----------
@@ -159,58 +174,101 @@ const isHome = bodyClass.includes('is-home');
             history.replaceState(null, '', location.pathname + location.search);
           } catch (err) {}
         }
-        document.documentElement.classList.remove('home-fresh');
-
         var pointerY = fromInternal ? 0 : 9999;
+        var pointerInsideHeader = false;
         function setNavHidden(hidden) {
           if (header) header.classList.toggle('nav-hidden', hidden);
         }
         function updateNav() {
+          if (header.contains(document.activeElement) || pointerInsideHeader) {
+            setNavHidden(false);
+            return;
+          }
           if (window.scrollY <= threshold) {
-            setNavHidden(pointerY > topZone);
+            setNavHidden(pointerY > Math.max(topZone, header.offsetHeight));
           } else {
             setNavHidden(false);
           }
         }
         document.addEventListener('mousemove', function (e) {
           pointerY = e.clientY;
+          pointerInsideHeader = header.contains(e.target);
           updateNav();
         });
         window.addEventListener('scroll', updateNav, { passive: true });
+        header.addEventListener('focusin', updateNav);
+        header.addEventListener('focusout', function () { setTimeout(updateNav, 0); });
+        document.documentElement.addEventListener('mouseleave', function () { pointerY = 9999; pointerInsideHeader = false; updateNav(); });
         updateNav();
-      }
-
-      // ---------- 滚动浮现（reveal） ----------
-      var revealEls = document.querySelectorAll('.reveal');
-      if (revealEls.length) {
-        if ('IntersectionObserver' in window) {
-          var io = new IntersectionObserver(
-            function (entries) {
-              entries.forEach(function (entry) {
-                if (entry.isIntersecting) {
-                  entry.target.classList.add('in-view');
-                  io.unobserve(entry.target);
-                }
-              });
-            },
-            { threshold: 0.15 }
-          );
-          revealEls.forEach(function (el) {
-            io.observe(el);
-          });
-        } else {
-          revealEls.forEach(function (el) {
-            el.classList.add('in-view');
-          });
-        }
+        document.documentElement.classList.remove('home-fresh');
       }
 
       // ---------- 顶部搜索 ----------
       var searchBox = document.querySelector('.nav-search');
+      var searchToggle = searchBox ? searchBox.querySelector('.search-toggle') : null;
+      var searchField = searchBox ? searchBox.querySelector('.search-field') : null;
       var searchInput = searchBox ? searchBox.querySelector('.search-input') : null;
       var searchResults = searchBox ? searchBox.querySelector('.search-results') : null;
+      var searchStatus = document.querySelector('.search-status');
 
-      if (searchInput && searchResults && searchIndex) {
+      if (searchToggle && searchField && searchInput && searchResults && searchIndex) {
+        var searchOpen = false;
+        var searchCloseTimer;
+        var compactSearch = matchMedia('(max-width: 520px)');
+        var headerBrand = headerElement.querySelector('.brand');
+        function syncCompactSearch() {
+          headerBrand.inert = compactSearch.matches && searchOpen;
+          searchInput.placeholder = compactSearch.matches ? '搜索…' : '搜索文章 / 投影…';
+        }
+        compactSearch.addEventListener('change', syncCompactSearch);
+        syncCompactSearch();
+        function showSearchResults(visible) {
+          searchResults.classList.toggle('is-visible', visible);
+          searchResults.inert = !visible;
+          searchResults.setAttribute('aria-hidden', visible ? 'false' : 'true');
+        }
+        function openSearch(focusInput) {
+          clearTimeout(searchCloseTimer);
+          if (searchOpen) {
+            if (focusInput) searchInput.focus({ preventScroll: true });
+            return;
+          }
+          searchOpen = true;
+          searchBox.classList.add('is-open');
+          headerElement.classList.add('search-open');
+          searchField.inert = false;
+          searchField.setAttribute('aria-hidden', 'false');
+          searchInput.tabIndex = 0;
+          searchToggle.setAttribute('aria-expanded', 'true');
+          syncCompactSearch();
+          runSearch();
+          if (focusInput) searchInput.focus({ preventScroll: true });
+        }
+        function closeSearch(restoreFocus) {
+          clearTimeout(searchCloseTimer);
+          if (!searchOpen) return;
+          if (restoreFocus && searchBox.contains(document.activeElement)) searchToggle.focus({ preventScroll: true });
+          searchOpen = false;
+          searchField.inert = true;
+          searchField.setAttribute('aria-hidden', 'true');
+          searchInput.tabIndex = -1;
+          showSearchResults(false);
+          searchBox.classList.remove('is-open');
+          headerElement.classList.remove('search-open');
+          searchToggle.setAttribute('aria-expanded', 'false');
+          syncCompactSearch();
+        }
+        searchBox.addEventListener('pointerenter', function (e) {
+          if (e.pointerType === 'mouse' && canHover.matches) openSearch(false);
+        });
+        searchBox.addEventListener('pointerleave', function () {
+          clearTimeout(searchCloseTimer);
+          searchCloseTimer = setTimeout(function () {
+            if (!searchBox.contains(document.activeElement)) closeSearch(false);
+          }, 100);
+        });
+        searchToggle.addEventListener('click', function () { openSearch(true); });
+
         function norm(s) {
           return (s || '').toLowerCase();
         }
@@ -223,8 +281,8 @@ const isHome = bodyClass.includes('is-home');
         function runSearch() {
           var q = norm(searchInput.value.trim());
           if (!q) {
-            searchResults.hidden = true;
-            searchResults.innerHTML = '';
+            showSearchResults(false);
+            if (searchStatus) searchStatus.textContent = '';
             return;
           }
           var toks = q.split(/\s+/);
@@ -245,7 +303,7 @@ const isHome = bodyClass.includes('is-home');
           function row(item) {
             var label = item.type === 'article' ? '文章' : '投影 · ' + item.cat;
             return (
-              '<a class="search-item" href="' + item.url + '">' +
+              '<a class="search-item" href="' + esc(item.url) + '">' +
               '<span class="search-item-label">' + esc(label) + '</span>' +
               '<span class="search-item-title">' + esc(item.title) + '</span>' +
               '</a>'
@@ -256,22 +314,83 @@ const isHome = bodyClass.includes('is-home');
           if (!articles.length && !files.length) html += '<div class="search-empty">无匹配结果</div>';
 
           searchResults.innerHTML = html;
-          searchResults.hidden = false;
+          showSearchResults(searchOpen);
+          if (searchStatus) searchStatus.textContent = '找到 ' + hits.length + ' 个结果';
         }
 
         searchInput.addEventListener('input', runSearch);
         searchInput.addEventListener('focus', runSearch);
+        searchBox.addEventListener('keydown', function (e) {
+          if (!searchResults.classList.contains('is-visible')) return;
+          var links = Array.from(searchResults.querySelectorAll('a'));
+          var current = links.indexOf(document.activeElement);
+          if (e.key === 'ArrowDown' && links.length) {
+            e.preventDefault();
+            links[Math.min(current + 1, links.length - 1)].focus();
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (current > 0) links[current - 1].focus();
+            else searchInput.focus();
+          } else if (e.key === 'Enter' && document.activeElement === searchInput && links.length && !e.isComposing) {
+            e.preventDefault();
+            links[0].click();
+          }
+        });
+        searchBox.addEventListener('focusout', function (e) {
+          if (!searchBox.contains(e.relatedTarget)) closeSearch(false);
+        });
 
         searchResults.addEventListener('click', function (e) {
-          if (e.target.closest('a')) searchResults.hidden = true;
+          if (e.target.closest('a')) closeSearch(false);
         });
         document.addEventListener('click', function (e) {
-          if (searchBox && !searchBox.contains(e.target)) searchResults.hidden = true;
+          if (!searchBox.contains(e.target)) closeSearch(false);
         });
         document.addEventListener('keydown', function (e) {
-          if (e.key === 'Escape') searchResults.hidden = true;
+          if (e.key === 'Escape' && searchOpen) {
+            e.preventDefault();
+            closeSearch(true);
+          }
         });
       }
+
+      // 手机上的文章目录收起，读者可以在正文前展开。
+      var tocPanel = document.querySelector('.toc-panel');
+      if (tocPanel) {
+        var compactToc = matchMedia('(max-width: 900px)');
+        function setTocLayout() { tocPanel.open = !compactToc.matches; }
+        setTocLayout();
+        compactToc.addEventListener('change', setTocLayout);
+      }
+
+      // 随阅读位置标出当前章节 / 文件分类；链接本身仍是普通锚点。
+      ['.toc-sections', '.cat-nav'].forEach(function (selector) {
+        var directory = document.querySelector(selector);
+        if (!directory) return;
+        var sections = Array.from(directory.querySelectorAll('a[href^="#"]')).map(function (link) {
+          return { link: link, target: document.getElementById(decodeURIComponent(link.hash.slice(1))) };
+        }).filter(function (item) { return item.target; });
+        if (!sections.length) return;
+        var scheduled = false;
+        function markSection() {
+          scheduled = false;
+          var offset = (headerElement ? headerElement.offsetHeight : 74) + 40;
+          var current = sections[0];
+          sections.forEach(function (item) {
+            if (item.target.getBoundingClientRect().top <= offset) current = item;
+          });
+          sections.forEach(function (item) {
+            if (item === current) item.link.setAttribute('aria-current', 'location');
+            else item.link.removeAttribute('aria-current');
+          });
+        }
+        function scheduleSection() {
+          if (!scheduled) { scheduled = true; requestAnimationFrame(markSection); }
+        }
+        window.addEventListener('scroll', scheduleSection, { passive: true });
+        window.addEventListener('resize', scheduleSection);
+        markSection();
+      });
     </script>
   </body>
 </html>

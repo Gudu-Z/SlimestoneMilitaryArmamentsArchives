@@ -1,48 +1,47 @@
 ---
 import Base from '../layouts/Base.astro';
+import PageHeading from '../components/PageHeading.astro';
 import { getCollection } from 'astro:content';
 import { SERIES } from '../data/series';
 
 const articles = await getCollection('articles');
 
 // 按系列分组展示，系列按 order 排序
-const seriesGroups = SERIES
+const seriesGroups = [...SERIES]
   .sort((a, b) => a.order - b.order)
   .map((s) => ({
     series: s,
     articles: articles
       .filter((a) => a.id.split('/')[0] === s.slug)
       .sort((a, b) => a.data.order - b.data.order),
-  }));
+  })).filter((group) => group.articles.length > 0);
 ---
 
 <Base
-  title="视频教程 · 军用绿萌军备档案馆"
-  description="《从0开始的 JE 航械入门》系列视频稿——航械定义、时序分析、实用模组推荐。"
+  title="文章与教程 · 军用绿萌军备档案馆"
+  description="按系列查阅航械技术文章与视频稿，从第一台飞行器开始，探索结构与原理。"
 >
-  <main class="page">
+  <main class="page" id="main-content">
     <div class="container">
-      <div class="page-head">
-        <div class="breadcrumb"><a href="/">首页</a><span>/</span>教程</div>
-        <h1>视频教程</h1>
-        <div class="meta">
-          <span class="tag tag--green">{SERIES.length} 个系列</span>
-          <span class="tag">持续更新中</span>
-        </div>
-      </div>
+      <PageHeading eyebrow="SMA / FIELD NOTES" title="文章与教程" description="把结构讲清楚，把经验留下来。从基础入门到设计思路，按系列探索航械。">
+        <Fragment slot="breadcrumb"><a href="/#home">首页</a><span aria-hidden="true">/</span><span aria-current="page">教程</span></Fragment>
+        <span>{seriesGroups.length} 个系列</span><span>{articles.length} 篇文章</span><span class="meta-accent">持续整理中</span>
+      </PageHeading>
 
-      {seriesGroups.map(({ series, articles }) => (
-        <section class="cat-section">
-          <h2 class="cat-title">
-            {series.name} <span class="count">{articles.length}</span>
-          </h2>
-          <div class="grid">
+      {seriesGroups.map(({ series, articles }, i) => (
+        <section class="library-series" id={`series-${series.slug}`} aria-labelledby={`series-title-${i}`}>
+          <div class="library-intro">
+            <p class="eyebrow">SERIES / {String(i + 1).padStart(2, '0')}</p>
+            <h2 id={`series-title-${i}`}>{series.name}</h2>
+            <p>{articles.length} 篇文章 · 按章节阅读</p>
+            <a class="text-link" href={`/articles/${articles[0].id}/`}>从第一篇开始 <span aria-hidden="true">↗</span></a>
+          </div>
+          <div class="article-index">
             {articles.map((a) => (
-              <a class={`card ${a.data.color ? `card--${a.data.color}` : ''}`} href={`/articles/${a.id}/`}>
-                <span class="card-num">{a.data.tag}</span>
-                <h3>{a.data.title}</h3>
-                <p>{a.data.summary || a.data.description}</p>
-                <span class="card-foot">阅读全文 →</span>
+              <a class="article-entry" href={`/articles/${a.id}/`}>
+                <span class="entry-tag">{a.data.tag}</span>
+                <div><h3>{a.data.title}</h3><p>{a.data.summary || a.data.description}</p></div>
+                <span class="entry-arrow" aria-hidden="true">↗</span>
               </a>
             ))}
           </div>

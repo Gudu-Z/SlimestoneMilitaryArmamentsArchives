@@ -43,5 +43,7 @@ src/
   data/projections.ts   # 投影文件清单
   data/series.ts        # 教程系列清单
   lib/search.ts         # 构建时生成搜索索引
-  styles/global.css     # 玻璃拟态样式
+  components/PageHeading.astro # 共用的页面标题、面包屑与内容统计
+  styles/global.css     # 工业技术档案馆样式（导航、阅读区、目录、下载列表）
+  styles/home-industrial.css # 首页的品牌首屏与工程示意图布局
 ```

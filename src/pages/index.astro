@@ -1,70 +1,56 @@
 ---
 import Base from '../layouts/Base.astro';
+import '../styles/home-industrial.css';
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import piston from '../../articles/从0开始的je航械入门/第一期/10gt活塞虫.png';
+import { PROJECTIONS, CATEGORIES } from '../data/projections';
+import { SERIES } from '../data/series';
+const articles = (await getCollection('articles')).sort((a, b) => a.data.order - b.data.order);
+const categories = CATEGORIES.filter(cat => PROJECTIONS.some(p => p.category === cat));
+const series = [...SERIES].sort((a, b) => a.order - b.order).filter(s => articles.some(a => a.id.startsWith(s.slug + '/')));
+const featured = articles.find(a => a.id === '从0开始的je航械入门/第一期');
 ---
-
-<Base
-  bodyClass="is-home"
-  title="军用绿萌军备档案馆 · SMA Archives"
-  description="军用绿萌军备（Slimestone Military Armaments）档案馆——Java 版 Minecraft 航械领域开源机器投影与视频教程。"
->
-  <main>
-    <section class="hero hero--landing">
-      <img class="hero-logo" src="/assets/img/logo.png" alt="SMA" />
-      <h1 class="hero-title">
-        军用绿萌军备
-        <span class="hero-title-en">Slimestone Military Armaments</span>
-      </h1>
-      <div class="scroll-hint" aria-hidden="true"><span></span></div>
-    </section>
-
-    <section class="section reveal">
-      <div class="container">
-        <div class="section-head">
-          <span class="section-marker"></span>
-          <h2 class="section-title">快速入口</h2>
-        </div>
-        <div class="grid grid--3">
-          <a class="card card--green" href="/tutorials/">
-            <span class="card-num">01</span>
-            <h3>视频教程</h3>
-            <p>《从0开始的 JE 航械入门》系列视频稿，含时序、微时序等红石进阶知识，图文并茂。</p>
-            <span class="card-foot">阅读全文 →</span>
-          </a>
-          <a class="card card--yellow" href="/archive/">
-            <span class="card-num">02</span>
-            <h3>投影档案馆</h3>
-            <p>46+ 台开源机器投影（.litematic），涵盖导弹、炮、飞船成品、TNT 复制结构等 11 大类。</p>
-            <span class="card-foot">浏览下载 →</span>
-          </a>
-          <a class="card" href="https://qm.qq.com/q/JsLciG3w0U" target="_blank" rel="noopener">
-            <span class="card-num">03</span>
-            <h3>加入我们</h3>
-            <p>对航械有兴趣？欢迎加入军用绿萌军备，一起搓第一台飞行器。</p>
-            <span class="card-foot">加入 QQ 群 →</span>
-          </a>
-        </div>
+<Base bodyClass="is-home industrial-home" title="军用绿萌军备档案馆 · SMA Archives" description="探索 Java 版 Minecraft 航械：机器投影、结构设计与技术文章。军用绿萌军备 SMA 开源档案馆。">
+  <main id="main-content">
+    <section class="industrial-landing" aria-label="军用绿萌军备">
+      <div class="drawing-frame" aria-hidden="true"></div>
+      <div class="brand-lockup">
+        <img class="landing-logo" src="/assets/img/logo.png" alt="SMA 标志" width="340" height="340" />
+        <h1>军用绿萌军备<span lang="en">SLIMESTONE MILITARY ARMAMENTS</span></h1>
       </div>
+      <a class="landing-scroll" href="#archive-overview" aria-label="向下浏览档案馆"><span aria-hidden="true">↓</span></a>
     </section>
-
-    <section class="section reveal" id="about">
-      <div class="container">
-        <div class="section-head">
-          <span class="section-marker"></span>
-          <h2 class="section-title">关于我们</h2>
+    <div class="archive-shell" id="archive-overview">
+      <div class="archive-status"><span><i aria-hidden="true"></i>SMA / 开源航械档案</span><span>MINECRAFT JAVA EDITION</span></div>
+      <section class="overview-section" aria-labelledby="overview-title">
+        <div class="overview-heading"><div><p class="eyebrow">01 / EXPLORE THE ARCHIVE</p><h2 id="overview-title">从一个方块，<br />到一整艘战舰。</h2></div><p class="overview-description">记录航械的结构、原理与可能性。<br />在这里查阅设计，下载投影，开始你的下一次建造。</p></div>
+        <div class="archive-metrics">
+          <a href="/archive/"><strong>{String(PROJECTIONS.length).padStart(2, '0')}</strong><span>投影与合集 <b aria-hidden="true">↗</b></span></a>
+          <a href="/archive/"><strong>{String(categories.length).padStart(2, '0')}</strong><span>结构分类 <b aria-hidden="true">↗</b></span></a>
+          <a href="/tutorials/"><strong>{String(articles.length).padStart(2, '0')}</strong><span>技术文章 <b aria-hidden="true">↗</b></span></a>
         </div>
-        <div class="about-box">
-          <p>
-            我们是 <strong>军用绿萌军备 Slimestone Military Armaments（SMA）</strong>，一个聚焦于 Java 版 Minecraft 航械领域的玩家组织。
-          </p>
-          <p>
-            所谓「航械」，可以理解为绿萌——即红石飞行器科技的一个分支，特指那些<strong>非生存实用性飞行器</strong>：红石战舰、可移动计算机、可移动活塞门、观赏性可移动建筑等。
-          </p>
-          <p>
-            我们希望借此让更多玩家了解航械，并有能力建造属于自己的第一台战舰。如果你对航械有任何见解，欢迎加入我们、一起捉虫。
-          </p>
-          <a class="qq" href="https://qm.qq.com/q/JsLciG3w0U" target="_blank" rel="noopener">QQ 群 · 993080537</a>
+      </section>
+      <section class="technical-feature" aria-labelledby="feature-title">
+        <figure class="technical-drawing">
+          <div class="drawing-label"><span>STRUCTURE STUDY / 01</span><span>JE · 飞行器</span></div>
+          <Image src={piston} alt="由粘液块、活塞与侦测器构成的 10gt 活塞虫结构" widths={[480, 800, 1067]} sizes="(max-width: 760px) 90vw, 50vw" />
+          <figcaption><span>10gt 活塞虫</span><span>教程结构示意图</span></figcaption>
+        </figure>
+        <div class="feature-copy"><p class="eyebrow">入门 / FIRST FLIGHT</p><h2 id="feature-title">第一台飞行器，<br />从理解它开始。</h2><p>活塞如何推动方块？侦测器怎样触发下一步？从一只活塞虫出发，逐步理解飞行器的时序与微时序。</p>
+          <dl class="technical-specs"><div><dt>结构</dt><dd>10gt 活塞虫</dd></div><div><dt>运行周期</dt><dd>10 game ticks</dd></div><div><dt>阅读主题</dt><dd>飞行器 / 时序 / 微时序</dd></div></dl>
+          <a class="industrial-button" href={featured ? `/articles/${featured.id}/` : '/tutorials/'}>阅读入门教程 <span aria-hidden="true">↗</span></a>
         </div>
-      </div>
-    </section>
+      </section>
+      <section class="catalog-section" aria-labelledby="catalog-title">
+        <div class="catalog-heading"><div><p class="eyebrow">02 / SCHEMATIC LIBRARY</p><h2 id="catalog-title">找到下一块拼图</h2></div><a class="text-link" href="/archive/">全部投影 ↗</a></div>
+        <div class="category-grid">{categories.map((category, i) => <a class="category-entry" href={`/archive/#cat-${i}`}><span class="category-code">{String(i + 1).padStart(2, '0')}</span><h3>{category}</h3><span class="category-count">{PROJECTIONS.filter(p => p.category === category).length} 个文件</span><span class="category-arrow" aria-hidden="true">↗</span></a>)}</div>
+      </section>
+      <section class="reading-section" aria-labelledby="reading-title">
+        <div class="catalog-heading"><div><p class="eyebrow">03 / FIELD NOTES</p><h2 id="reading-title">把经验留给下一位建造者</h2></div><a class="text-link" href="/tutorials/">全部文章 ↗</a></div>
+        {series.map(s => <div class="reading-series"><div class="series-label"><span>文章系列</span><h3>{s.name}</h3><p>从结构到原理，循序探索。</p></div><div class="reading-list">{articles.filter(a => a.id.startsWith(s.slug + '/')).map(a => <a href={`/articles/${a.id}/`}><span class="reading-tag">{a.data.tag}</span><div><h4>{a.data.short || a.data.title}</h4><p>{a.data.description}</p></div><span aria-hidden="true">↗</span></a>)}</div></div>)}
+      </section>
+      <section class="community-section" id="about" aria-labelledby="community-title"><div><p class="eyebrow">SMA / ABOUT THE COLLECTIVE</p><h2 id="community-title">一起探索航械的可能性。</h2><p>我们是军用绿萌军备，一个聚焦 Java 版 Minecraft 航械的玩家组织。<br />红石战舰、可移动建筑、可移动计算机——欢迎带着你的想法加入。</p></div><a class="industrial-button community-button" href="https://qm.qq.com/q/JsLciG3w0U" target="_blank" rel="noopener">加入我们 <span aria-hidden="true">↗</span><small>QQ 群 · 993080537</small></a></section>
+    </div>
   </main>
 </Base>
