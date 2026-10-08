@@ -1,4 +1,4 @@
-const VIEWER_MODULE_URL = 'https://lwv.loafing.club/embed.js';
+const VIEWER_MODULE_URL = 'https://lwv.loafing.club/embed.js?v=sma-theme-1';
 const MAX_PREVIEW_BYTES = 64 * 1024 * 1024;
 const LOAD_TIMEOUT_MS = 90_000;
 
@@ -20,7 +20,18 @@ interface ViewerModule {
     name: string;
     lang: 'zh';
     pack: 'xk';
+    theme: 'dark';
     background: string;
+    style: {
+      accent: string;
+      surface: string;
+      text: string;
+      muted: string;
+      border: string;
+      radius: number;
+      fontFamily: string;
+    };
+    controls: { hint: boolean };
     onStatus(event: ViewerStatus): void;
   }): ViewerCard;
 }
@@ -146,12 +157,27 @@ export function initializeProjectionViewer(root: HTMLElement, onClose: () => voi
         readPreviewFile(media!.dataset.previewUrl!, media!.dataset.previewName!, request.signal),
       ]);
       if (!isCurrent(job)) return;
+      // 跨域 iframe 的内部按钮通过 SDK 主题配置与本站保持一致。
+      const siteStyle = getComputedStyle(root);
+      const token = (name: string) => siteStyle.getPropertyValue(name).trim();
       const created = sdk.createLitematicCard(mount, {
         file,
         name: media!.dataset.previewTitle || file.name,
         lang: 'zh',
         pack: 'xk',
+        theme: 'dark',
         background: '#12170f',
+        style: {
+          accent: token('--green-bright'),
+          surface: token('--surface'),
+          text: token('--text'),
+          muted: token('--muted'),
+          border: token('--line'),
+          radius: 0,
+          fontFamily: token('--font-sans'),
+        },
+        // 卡片下方已有鼠标与触屏操作提示，避免重复覆盖模型。
+        controls: { hint: false },
         onStatus(event) {
           if (!isCurrent(job)) return;
           if (event.type === 'close-request') { onClose(); return; }

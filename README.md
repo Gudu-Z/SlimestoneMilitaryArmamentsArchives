@@ -120,6 +120,8 @@ previewFile: "/预览文件/作品名称/预览.litematic"
 
 渲染使用 [LitematicWebViewer 的内嵌接口](https://github.com/Gudu-Z/LitematicWebViewer#嵌入预览卡片)，从 `https://lwv.loafing.club/embed.js` 按需加载。档案馆先读取本站文件，再将文件数据交给预览器，开发环境也可使用。预览需要访问该服务并支持 WebGL；嵌入文件上限为 64 MiB，大型模型的速度还取决于方块数量和设备性能。当前接口不直接读取游戏存档，也不模拟红石运行。
 
+预览器通过 `theme` / `style` 参数使用本站的深色配色、直角按钮和系统字体，颜色与字体读取 `src/styles/global.css` 的变量。iframe 内部的样式由这些接口参数控制；修改档案馆的普通 CSS 不会直接影响它。操作提示统一显示在卡片下方，打开“完整预览”也会沿用这套外观。
+
 ### 分享链接、旧编号和排序
 
 - 每份说明的 `id` 对应稳定链接 `/archive/#p-<id>`，例如 BS--1 为 `/archive/#p-sma-0001`。改显示标题、元数据文件夹名称或移动说明文件夹时，保留 `id` 和 `file` 即可保持链接与下载对应关系。
