@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">SMA 标签页图标</title>
+  <desc id="desc">深色直角方形背景上的金黄与绿色 SMA 标志。</desc>
+  <rect x="4" y="4" width="504" height="504" fill="#1B2119" stroke="#465139" stroke-width="8"/>
+  <g transform="translate(32 32) scale(.875)">
+    <path fill="#DBAD54" d="M64 40H448L488 80V128H408L384 104H136L112 128V184L144 216H344L376 248H64L24 208V80Z"/>
+    <path fill="#80AD5B" d="M120 168H448L488 208V432L448 472H64L24 432V232L112 320V384L136 408H376L400 384V232L368 200H152Z"/>
+  </g>
+</svg>
