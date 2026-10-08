@@ -1,17 +1,17 @@
 ---
 import Base from '../layouts/Base.astro';
 import PageHeading from '../components/PageHeading.astro';
+import ProjectionDialog from '../components/ProjectionDialog.astro';
 import { getCollection } from 'astro:content';
-import { PROJECTIONS, CATEGORIES } from '../data/projections';
+import { getProjections, getProjectionCategories } from '../lib/projections';
 
-// 给每个文件带上稳定锚点序号（与搜索索引一致），并按分类分组
-const filesWithIndex = PROJECTIONS.map((p, i) => ({ ...p, idx: i + 1 }));
-const grouped = CATEGORIES.map((cat) => ({
+const projections = await getProjections();
+const grouped = getProjectionCategories(projections).map((cat) => ({
   cat,
-  files: filesWithIndex.filter((f) => f.category === cat),
-})).filter((g) => g.files.length > 0);
+  files: projections.filter((f) => f.category === cat),
+}));
 
-const rarCount = PROJECTIONS.filter((p) => p.title.endsWith('.rar')).length;
+const rarCount = projections.filter((p) => p.format === 'RAR').length;
 
 const articles = await getCollection('articles');
 const appendix = articles.find((a) => a.data.tag === 'APPENDIX');
@@ -25,7 +25,7 @@ const appendix = articles.find((a) => a.data.tag === 'APPENDIX');
     <div class="container">
       <PageHeading eyebrow="SMA / SCHEMATIC LIBRARY" title="投影档案馆" description="从基础模块到完整飞船，查找结构、下载投影，为你的下一次建造积累灵感。">
         <Fragment slot="breadcrumb"><a href="/#home">首页</a><span aria-hidden="true">/</span><span aria-current="page">档案馆</span></Fragment>
-        <span>{grouped.length} 个分类</span><span>{PROJECTIONS.length - rarCount} 个投影</span><span>{rarCount} 个合集</span>
+        <span>{grouped.length} 个分类</span><span>{projections.length - rarCount} 个投影文件</span><span>{rarCount} 个压缩包</span>
       </PageHeading>
       <div class="archive-layout">
         <aside class="archive-directory">
@@ -33,10 +33,10 @@ const appendix = articles.find((a) => a.data.tag === 'APPENDIX');
           <nav class="cat-nav" aria-label="投影分类">
             {grouped.map((g, i) => <a href={`#cat-${i}`}><span>{g.cat}</span><span class="directory-count">{String(g.files.length).padStart(2, '0')}</span></a>)}
           </nav>
-          <p class="directory-tip">也可以通过顶部搜索框，按文件名或分类查找。</p>
+          <p class="directory-tip">点击文件名称查看图片与资料，也可以通过顶部搜索框查找。</p>
         </aside>
         <div class="archive-content">
-          <div class="download-note"><span class="note-label">使用说明</span><p><strong>.litematic</strong> 文件使用 <a href={appendix ? `/articles/${appendix.id}/` : '/tutorials/'}>Litematica 投影模组</a>载入；<strong>.rar</strong> 为打包合集，请先解压。</p></div>
+          <div class="download-note"><span class="note-label">使用说明</span><p><strong>.litematic</strong> 文件使用 <a href={appendix ? `/articles/${appendix.id}/` : '/tutorials/'}>Litematica 投影模组</a>载入；<strong>.rar</strong> 为压缩包，可能包含投影合集或游戏存档，请先解压并查看条目说明。</p></div>
           {grouped.map((g, i) => (
             <section class="cat-section" id={`cat-${i}`} aria-labelledby={`cat-title-${i}`}>
               <div class="category-heading">
@@ -46,13 +46,12 @@ const appendix = articles.find((a) => a.data.tag === 'APPENDIX');
               </div>
               <div class="file-list">
                 {g.files.map((f) => {
-                  const isRar = f.title.endsWith('.rar');
-                  const href = `/投影文件/${encodeURIComponent(f.category)}/${encodeURIComponent(f.title)}`;
+                  const isRar = f.format === 'RAR';
                   return (
-                    <div id={`f-${f.idx}`} class={`file-item${isRar ? ' file-item--yellow' : ''}`}>
-                      <span class="file-icon" title={isRar ? '压缩合集' : 'Litematica 投影'}>{isRar ? 'RAR' : 'LIT'}</span>
-                      <span class="file-name">{f.title}</span>
-                      <a class="file-dl" href={href} download aria-label={`下载 ${f.title}`}>下载 <span aria-hidden="true">↓</span></a>
+                    <div id={f.legacyId || `file-${f.id}`} class={`file-item${isRar ? ' file-item--yellow' : ''}`}>
+                      <span class="file-icon" title={isRar ? 'RAR 压缩包' : 'Litematica 投影'}>{isRar ? 'RAR' : 'LIT'}</span>
+                      <a class="file-detail" href={f.detailUrl} data-projection-id={f.id} aria-haspopup="dialog" aria-label={`查看 ${f.title} 的详情`}><span class="file-name">{f.fileName}</span><span class="file-detail-hint" aria-hidden="true">↗</span></a>
+                      <a class="file-dl" href={f.url} download aria-label={`下载 ${f.fileName}`}>下载 <span aria-hidden="true">↓</span></a>
                     </div>
                   );
                 })}
@@ -63,4 +62,5 @@ const appendix = articles.find((a) => a.data.tag === 'APPENDIX');
       </div>
     </div>
   </main>
+  <ProjectionDialog projections={projections} />
 </Base>

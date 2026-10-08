@@ -4,10 +4,11 @@ import '../styles/home-industrial.css';
 import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
 import piston from '../../articles/从0开始的je航械入门/第一期/10gt活塞虫.png';
-import { PROJECTIONS, CATEGORIES } from '../data/projections';
+import { getProjections, getProjectionCategories } from '../lib/projections';
 import { SERIES } from '../data/series';
 const articles = (await getCollection('articles')).sort((a, b) => a.data.order - b.data.order);
-const categories = CATEGORIES.filter(cat => PROJECTIONS.some(p => p.category === cat));
+const projections = await getProjections();
+const categories = getProjectionCategories(projections);
 const series = [...SERIES].sort((a, b) => a.order - b.order).filter(s => articles.some(a => a.id.startsWith(s.slug + '/')));
 const featured = articles.find(a => a.id === '从0开始的je航械入门/第一期');
 ---
@@ -26,7 +27,7 @@ const featured = articles.find(a => a.id === '从0开始的je航械入门/第一
       <section class="overview-section" aria-labelledby="overview-title">
         <div class="overview-heading"><div><p class="eyebrow">01 / EXPLORE THE ARCHIVE</p><h2 id="overview-title">从一个方块，<br />到一整艘战舰。</h2></div><p class="overview-description">记录航械的结构、原理与可能性。<br />在这里查阅设计，下载投影，开始你的下一次建造。</p></div>
         <div class="archive-metrics">
-          <a href="/archive/"><strong>{String(PROJECTIONS.length).padStart(2, '0')}</strong><span>投影与合集 <b aria-hidden="true">↗</b></span></a>
+          <a href="/archive/"><strong>{String(projections.length).padStart(2, '0')}</strong><span>档案文件 <b aria-hidden="true">↗</b></span></a>
           <a href="/archive/"><strong>{String(categories.length).padStart(2, '0')}</strong><span>结构分类 <b aria-hidden="true">↗</b></span></a>
           <a href="/tutorials/"><strong>{String(articles.length).padStart(2, '0')}</strong><span>技术文章 <b aria-hidden="true">↗</b></span></a>
         </div>
@@ -44,7 +45,7 @@ const featured = articles.find(a => a.id === '从0开始的je航械入门/第一
       </section>
       <section class="catalog-section" aria-labelledby="catalog-title">
         <div class="catalog-heading"><div><p class="eyebrow">02 / SCHEMATIC LIBRARY</p><h2 id="catalog-title">找到下一块拼图</h2></div><a class="text-link" href="/archive/">全部投影 ↗</a></div>
-        <div class="category-grid">{categories.map((category, i) => <a class="category-entry" href={`/archive/#cat-${i}`}><span class="category-code">{String(i + 1).padStart(2, '0')}</span><h3>{category}</h3><span class="category-count">{PROJECTIONS.filter(p => p.category === category).length} 个文件</span><span class="category-arrow" aria-hidden="true">↗</span></a>)}</div>
+        <div class="category-grid">{categories.map((category, i) => <a class="category-entry" href={`/archive/#cat-${i}`}><span class="category-code">{String(i + 1).padStart(2, '0')}</span><h3>{category}</h3><span class="category-count">{projections.filter(p => p.category === category).length} 个文件</span><span class="category-arrow" aria-hidden="true">↗</span></a>)}</div>
       </section>
       <section class="reading-section" aria-labelledby="reading-title">
         <div class="catalog-heading"><div><p class="eyebrow">03 / FIELD NOTES</p><h2 id="reading-title">把经验留给下一位建造者</h2></div><a class="text-link" href="/tutorials/">全部文章 ↗</a></div>

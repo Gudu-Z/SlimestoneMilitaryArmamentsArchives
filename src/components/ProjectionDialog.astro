@@ -1,0 +1,135 @@
+---
+import { render } from 'astro:content';
+import { getImage } from 'astro:assets';
+import type { Projection } from '../lib/projections';
+import '../styles/projection-dialog.css';
+
+interface Props { projections: Projection[] }
+const { projections } = Astro.props;
+const downloadLabels: Record<Projection['contentType'], string> = {
+  '投影': '下载投影',
+  '投影合集': '下载合集',
+  '游戏存档': '下载存档',
+  '压缩包': '下载压缩包',
+};
+const cards = await Promise.all(projections.map(async (projection) => {
+  const hasDescription = Boolean(projection.entry?.body?.replace(/<!--[\s\S]*?-->/g, '').trim());
+  const rendered = hasDescription && projection.entry ? await render(projection.entry) : null;
+  const images = await Promise.all(projection.images.map(async (image) => {
+    const [preview, full, thumbnail] = await Promise.all([
+      getImage({ src: image.src, width: Math.min(image.src.width, 900), format: 'webp' }),
+      getImage({ src: image.src, width: Math.min(image.src.width, 1800), format: 'webp' }),
+      getImage({ src: image.src, width: Math.min(image.src.width, 144), format: 'webp' }),
+    ]);
+    return { ...image, preview, full, thumbnail };
+  }));
+  return { projection, Content: rendered?.Content, images };
+}));
+---
+
+{cards.map(({ projection: p, Content, images }) => (
+  <template data-projection-template data-projection-id={p.id} data-legacy-id={p.legacyId} data-detail-url={p.detailUrl}>
+    <div class="projection-card">
+      <section class="projection-media" aria-label="结构预览" data-preview-url={p.preview?.url} data-preview-name={p.preview?.fileName} data-preview-size={p.preview?.size} data-preview-title={p.title}>
+        <div class="projection-media-heading"><span>STRUCTURE / 结构预览</span><span data-image-counter>{images.length ? `01 / ${String(images.length).padStart(2, '0')}` : '— / —'}</span></div>
+        {p.preview && (
+          <div class="projection-media-tabs" role="tablist" aria-label="预览方式">
+            <button type="button" id="projection-tab-images" role="tab" aria-selected="true" aria-controls="projection-images" data-media-tab="images">图片</button>
+            <button type="button" id="projection-tab-model" role="tab" aria-selected="false" aria-controls="projection-model" tabindex="-1" data-media-tab="model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Zm0 9L4 7.5M12 12l8-4.5M12 12v9" /></svg>3D 预览</button>
+          </div>
+        )}
+        <div class="projection-media-views">
+        <div class="projection-photo-panel" id="projection-images" role={p.preview ? 'tabpanel' : undefined} aria-labelledby={p.preview ? 'projection-tab-images' : undefined}>
+          <div class="projection-gallery">
+          {images.length ? images.map((image, index) => (
+            <button type="button" class="projection-preview" data-gallery-frame data-image-index={index} data-full-image={image.full.src} data-image-caption={image.caption || image.alt} aria-label={`放大图片：${image.alt}`} hidden={index > 0}>
+              <img src={image.preview.src} width={image.preview.attributes.width} height={image.preview.attributes.height} alt={image.alt} loading={index ? 'lazy' : 'eager'} decoding="async" />
+              <span class="projection-zoom-hint" aria-hidden="true">↗ 点击放大</span>
+            </button>
+          )) : (
+            <div class="projection-image-placeholder">
+              <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="m32 8 22 12v24L32 56 10 44V20L32 8Z M10 20l22 12 22-12M32 32v24M21 14l22 12v13" /></svg>
+              <p>暂无预览图</p>
+              <span>{p.preview ? '可以先在 3D 中查看结构' : '图片整理中'}</span>
+              {p.preview && <button type="button" class="projection-model-start" data-open-model>加载 3D 预览 <span aria-hidden="true">↗</span></button>}
+            </div>
+          )}
+        </div>
+        {images.length > 1 && (
+          <div class="projection-thumbnails" aria-label="切换预览图片">
+            {images.map((image, index) => (
+              <button type="button" data-gallery-thumbnail data-image-index={index} aria-label={`查看图片 ${index + 1}：${image.alt}`} aria-pressed={index === 0 ? 'true' : 'false'}>
+                <img src={image.thumbnail.src} width="72" height="48" alt="" loading="lazy" />
+                <span>{image.caption || `图片 ${index + 1}`}</span>
+              </button>
+            ))}
+          </div>
+        )}
+        <p class="projection-image-caption" data-image-caption-text>{images[0]?.caption || images[0]?.alt || `${p.category} / ${p.contentType}`}</p>
+        </div>
+        {p.preview && (
+          <div class="projection-model-panel" id="projection-model" role="tabpanel" aria-labelledby="projection-tab-model" data-model-panel data-state="idle" hidden>
+            <div class="projection-model-stage">
+              <div class="projection-model-mount" data-model-mount inert></div>
+              <div class="projection-model-message" data-model-message>
+                <span class="projection-model-mark" aria-hidden="true">3D</span>
+                <div><p class="projection-model-title" data-model-status>准备加载 3D 预览</p><p class="projection-model-detail" data-model-detail>加载后可旋转、平移和缩放结构。</p></div>
+                <progress data-model-progress max="1" aria-label="模型加载进度" hidden></progress>
+                <button type="button" class="projection-model-start" data-retry-model hidden>重新加载</button>
+              </div>
+            </div>
+            <p class="projection-model-hint" data-model-hint><span class="projection-desktop-hint">拖动旋转 · 右键平移 · 滚轮缩放</span><span class="projection-touch-hint">单指旋转 · 双指平移与缩放</span></p>
+            <p class="projection-model-handoff" data-model-handoff role="status" hidden>正在打开完整预览，请保持卡片打开…</p>
+            <p class="visually-hidden" data-model-announcement role="status" aria-live="polite"></p>
+          </div>
+        )}
+        </div>
+      </section>
+
+      <div class="projection-info">
+        <div class="projection-info-scroll">
+          <p class="eyebrow">SMA / {p.id.toUpperCase()}</p>
+          <h2 id="projection-title">{p.title}</h2>
+          <div class="projection-tags"><span>{p.category}</span><span class:list={{ 'projection-tag-yellow': p.format === 'RAR' }}>{p.contentType}</span>{p.tags.map(tag => <span>{tag}</span>)}</div>
+          <dl class="projection-facts">
+            <div><dt>作者</dt><dd>{p.author || '待补充'}</dd></div>
+            <div><dt>适用版本</dt><dd>{p.versions.length ? p.versions.join(' / ') : '待补充'}</dd></div>
+            <div><dt>文件格式</dt><dd>{p.format === 'RAR' ? '.rar 压缩包' : '.litematic'}</dd></div>
+            <div><dt>文件大小</dt><dd>{p.sizeLabel}</dd></div>
+            {p.parameters.map(parameter => <div><dt>{parameter.label}</dt><dd>{parameter.value}</dd></div>)}
+          </dl>
+          <section class="projection-description" aria-label="档案简介">
+            <h3>简介与说明</h3>
+            {Content ? <div class="projection-markdown"><Content /></div> : <p class="projection-pending">暂未补充简介。</p>}
+          </section>
+          {p.links.length > 0 && (
+            <section class="projection-related" aria-label="相关资料"><h3>相关资料</h3><ul>{p.links.map(link => <li><a href={link.url} target={link.url.startsWith('http') ? '_blank' : undefined} rel={link.url.startsWith('http') ? 'noopener noreferrer' : undefined}>{link.label} <span aria-hidden="true">↗</span></a></li>)}</ul></section>
+          )}
+          <div class="projection-original-file"><span>原始文件</span><p>{p.fileName}</p></div>
+        </div>
+        <footer class="projection-actions">
+          <div class="projection-action-buttons">
+            <a class="projection-download" href={p.url} download>{downloadLabels[p.contentType]} <span aria-hidden="true">↓</span></a>
+            <button class="projection-share" type="button" data-copy-projection>复制链接 <span aria-hidden="true">↗</span></button>
+          </div>
+          <p class="projection-copy-status" data-copy-status role="status" aria-live="polite"></p>
+          <div class="projection-share-fallback" data-share-fallback hidden><label for="projection-share-url">分享链接</label><input id="projection-share-url" type="text" readonly /></div>
+        </footer>
+      </div>
+    </div>
+  </template>
+))}
+
+<dialog class="projection-dialog" aria-labelledby="projection-title">
+  <button type="button" class="projection-close" data-close-projection aria-label="关闭档案详情" autofocus><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6" /></svg></button>
+  <div class="projection-content"></div>
+</dialog>
+
+<dialog class="projection-lightbox" aria-label="图片放大预览">
+  <button type="button" class="projection-close" data-close-image aria-label="关闭图片预览" autofocus><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6" /></svg></button>
+  <figure><img data-lightbox-image alt="" /><figcaption data-lightbox-caption></figcaption></figure>
+</dialog>
+
+<script>
+  import '../scripts/projection-dialog';
+</script>

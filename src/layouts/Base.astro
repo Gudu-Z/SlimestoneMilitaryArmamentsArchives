@@ -63,11 +63,11 @@ const isHome = bodyClass.includes('is-home');
         </a>
         <div class="nav-actions">
           <div class="nav-search" role="search" aria-label="站内搜索">
-            <button class="search-toggle" type="button" aria-label="搜索文章或投影文件" aria-controls="site-search-field" aria-expanded="false">
+            <button class="search-toggle" type="button" aria-label="搜索文章或档案文件" aria-controls="site-search-field" aria-expanded="false">
               <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5" /></svg>
             </button>
             <div class="search-field" id="site-search-field" aria-hidden="true" inert>
-              <input type="search" class="search-input" placeholder="搜索文章 / 投影…" aria-label="搜索文章或投影文件" aria-controls="search-results" autocomplete="off" tabindex="-1" />
+              <input type="search" class="search-input" placeholder="搜索文章 / 文件…" aria-label="搜索文章或档案文件" aria-controls="search-results" autocomplete="off" tabindex="-1" />
             </div>
             <div class="search-results" id="search-results" role="region" aria-label="搜索结果" aria-hidden="true" inert></div>
             <span class="search-status visually-hidden" role="status"></span>
@@ -218,7 +218,7 @@ const isHome = bodyClass.includes('is-home');
         var headerBrand = headerElement.querySelector('.brand');
         function syncCompactSearch() {
           headerBrand.inert = compactSearch.matches && searchOpen;
-          searchInput.placeholder = compactSearch.matches ? '搜索…' : '搜索文章 / 投影…';
+          searchInput.placeholder = compactSearch.matches ? '搜索…' : '搜索文章 / 文件…';
         }
         compactSearch.addEventListener('change', syncCompactSearch);
         syncCompactSearch();
@@ -301,7 +301,7 @@ const isHome = bodyClass.includes('is-home');
 
           var html = '';
           function row(item) {
-            var label = item.type === 'article' ? '文章' : '投影 · ' + item.cat;
+            var label = item.type === 'article' ? '文章' : '档案 · ' + item.cat;
             return (
               '<a class="search-item" href="' + esc(item.url) + '">' +
               '<span class="search-item-label">' + esc(label) + '</span>' +
@@ -310,7 +310,7 @@ const isHome = bodyClass.includes('is-home');
             );
           }
           if (articles.length) html += '<div class="search-group">文章</div>' + articles.map(row).join('');
-          if (files.length) html += '<div class="search-group">投影文件</div>' + files.map(row).join('');
+          if (files.length) html += '<div class="search-group">档案文件</div>' + files.map(row).join('');
           if (!articles.length && !files.length) html += '<div class="search-empty">无匹配结果</div>';
 
           searchResults.innerHTML = html;

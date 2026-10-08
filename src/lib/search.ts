@@ -1,5 +1,5 @@
 import { getCollection } from 'astro:content';
-import { PROJECTIONS } from '../data/projections';
+import { getProjections } from './projections';
 
 export interface SearchEntry {
   type: 'article' | 'file';
@@ -9,9 +9,9 @@ export interface SearchEntry {
   keys: string;
 }
 
-// 构建时生成搜索索引：文章（标题+关键词）+ 投影文件（文件名+分类）
+// 构建时生成搜索索引：文章（标题+关键词）+ 投影文件（显示标题+原文件名+元数据）
 export async function buildSearchIndex(): Promise<SearchEntry[]> {
-  const articles = await getCollection('articles');
+  const [articles, projections] = await Promise.all([getCollection('articles'), getProjections()]);
   const articleEntries: SearchEntry[] = articles
     .sort((a, b) => a.data.order - b.data.order)
     .map((a) => ({
@@ -21,12 +21,12 @@ export async function buildSearchIndex(): Promise<SearchEntry[]> {
       keys: a.data.keywords || '',
     }));
 
-  const fileEntries: SearchEntry[] = PROJECTIONS.map((p, i) => ({
+  const fileEntries: SearchEntry[] = projections.map((p) => ({
     type: 'file',
     title: p.title,
-    url: `/archive/#f-${i + 1}`,
+    url: p.detailUrl,
     cat: p.category,
-    keys: p.category,
+    keys: [p.fileName, ...p.keywords, ...p.tags, p.category, p.contentType, p.author].filter(Boolean).join(' '),
   }));
 
   return [...articleEntries, ...fileEntries];
