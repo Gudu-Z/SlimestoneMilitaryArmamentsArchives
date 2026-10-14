@@ -40,6 +40,7 @@ const isHome = bodyClass.includes('is-home');
     <link rel="icon" type="image/svg+xml" sizes="any" href="/assets/img/favicon.svg?v=3" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {isHome && <link rel="preload" href="/fonts/sma-title-glow-heavy.woff2" as="font" type="font/woff2" crossorigin />}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />

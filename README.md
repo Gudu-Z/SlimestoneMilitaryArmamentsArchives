@@ -130,6 +130,14 @@ previewFile: "/预览文件/作品名称/预览.litematic"
 - 新文件即使没有 `说明.md` 也会自动出现，显示原文件名，并根据完整原始下载路径的 SHA-256 前 16 位得到 `auto-…` ID。相同路径的 ID 不受其他文件增删影响；要在以后补说明时保留分享链接，直接把链接中 `p-` 后面的 ID 填入元数据。若需改下载文件路径，应先补充并固定显式 `id`。
 - 重复稳定 ID、同一文件多份说明、重复旧编号，以及不存在或不合法的文件引用都会让构建报错，并指出相关说明文件。未填写作者、版本、配图、参数或正文不会报错。
 
+## 首页标题字体
+
+中文品牌大标题使用 [未来荧黑 Glow Sans SC Extended Heavy v0.93](https://github.com/welai/glow-sans/releases/tag/v0.93)，配合 Nasalization 英文标题。字重、字号与字距在 `src/styles/home-industrial.css` 的 `.brand-lockup h1` 中调整。
+
+`public/fonts/sma-title-glow-heavy.woff2` 是从官方 `GlowSansSC-Extended-Heavy.otf` 提取的标题专用子集，内部名称为 `SMA Title Glow Heavy`，约 2.8 KB，仅包含“军用绿萌军备”需要的字形。本地托管，首页预加载；文章正文和其他栏目继续使用系统字体。如果修改中文品牌名称，需要重新提取对应字形并同步更新 `unicode-range`，缺失的字会回退到系统字体。
+
+原字体由 Celestial Phineas / Project Welai 制作，使用 SIL Open Font License 1.1；完整许可保存在 `public/fonts/OFL-GlowSans.txt`，字体文件内保留原作者与许可信息。子集使用 fonteditor-core 2.6.3 转换为 WOFF2，该工具不属于网站运行或构建依赖。
+
 ## 目录结构
 
 ```

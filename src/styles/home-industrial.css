@@ -1,4 +1,14 @@
 /* 首页：品牌首屏、工程示意图与内容入口。公共样式在 global.css。 */
+/* 未来荧黑 Extended Heavy，标题专用子集；来源与许可见 public/fonts/OFL-GlowSans.txt。 */
+@font-face {
+  font-family: 'SMA Title Glow Heavy';
+  src: url('/fonts/sma-title-glow-heavy.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+519B, U+5907, U+7528, U+7EFF, U+840C;
+}
+
 .industrial-landing { min-height: max(660px, 100svh); position: relative; display: grid; place-items: center; padding: 76px 24px 100px; isolation: isolate; overflow: hidden; background-image: linear-gradient(#b5db6907 1px, transparent 1px), linear-gradient(90deg, #b5db6907 1px, transparent 1px); background-size: 64px 64px; border-bottom: 1px solid var(--line); }
 .industrial-landing::before { content: ''; position: absolute; z-index: -1; inset: 0; background: radial-gradient(ellipse, transparent 15%, #121512 80%); }
 .drawing-frame { position: absolute; inset: 9% max(24px, 8%); border: 1px solid #b5db691a; pointer-events: none; }
@@ -7,8 +17,9 @@
 .drawing-frame::after { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
 .brand-lockup { text-align: center; width: min(620px, 100%); }
 .landing-logo { width: clamp(210px, 26vw, 330px); height: auto; margin: 0 auto 30px; }
-.brand-lockup h1 { font-family: var(--font-sans); font-size: clamp(36px, 5.4vw, 72px); line-height: 1.2; letter-spacing: .035em; }
-.brand-lockup h1 span { display: block; font-family: Nasalization, sans-serif; font-size: clamp(11px, 2.05vw, 27px); font-weight: 400; letter-spacing: 0; white-space: nowrap; color: var(--green-bright); margin-top: 20px; }
+.brand-lockup h1 { font-family: 'SMA Title Glow Heavy', var(--font-sans); font-size: clamp(36px, 5.4vw, 80px); font-weight: 900; font-synthesis: none; line-height: 1.2; letter-spacing: .02em; white-space: nowrap; }
+/* 按两款字体的实际字宽配比，让中英文标题一起缩放、宽度保持接近。 */
+.brand-lockup h1 span { display: block; font-family: Nasalization, sans-serif; font-size: .336em; font-weight: 400; letter-spacing: 0; white-space: nowrap; color: var(--green-bright); margin-top: 20px; }
 .landing-scroll { position: absolute; bottom: 32px; left: calc(50% - 22px); width: 44px; height: 44px; display: grid; place-items: center; border: 1px solid var(--line); font-size: 23px; color: var(--green-bright); }
 .landing-scroll:hover { border-color: var(--green-bright); }
 .archive-shell { width: min(1280px, calc(100% - 96px)); margin: auto; }
