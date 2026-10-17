@@ -236,7 +236,7 @@ body.is-home .site-header { position: fixed; inset: 0 0 auto; }
   .library-intro .text-link { margin-top: 16px; }
 }
 @media (max-width: 820px) {
-  .site-header .brand-text small { display: none; }
+  .site-header .brand-text small { font-size: 8px; letter-spacing: .2px; white-space: nowrap; }
   .nav-search { position: static; }
   .nav-search::after { left: 0; right: 206px; }
   .archive-layout { grid-template-columns: minmax(0, 1fr); }

@@ -132,11 +132,11 @@ previewFile: "/预览文件/作品名称/预览.litematic"
 
 ## 首页标题字体
 
-中文品牌大标题使用 [未来荧黑 Glow Sans SC Extended Heavy v0.93](https://github.com/welai/glow-sans/releases/tag/v0.93)，配合 Nasalization 英文标题。字重、字号与字距在 `src/styles/home-industrial.css` 的 `.brand-lockup h1` 中调整。
+中文品牌大标题使用 [思源黑体 Source Han Sans SC Heavy 2.005](https://github.com/adobe-fonts/source-han-sans/releases/tag/2.005R)，配合 Nasalization 英文标题。字重、字号与字距在 `src/styles/home-industrial.css` 的 `.brand-lockup h1` 中调整。
 
-`public/fonts/sma-title-glow-heavy.woff2` 是从官方 `GlowSansSC-Extended-Heavy.otf` 提取的标题专用子集，内部名称为 `SMA Title Glow Heavy`，约 2.8 KB，仅包含“军用绿萌军备”需要的字形。本地托管，首页预加载；文章正文和其他栏目继续使用系统字体。如果修改中文品牌名称，需要重新提取对应字形并同步更新 `unicode-range`，缺失的字会回退到系统字体。
+`public/fonts/sma-title-han-heavy.woff2` 是从官方 `SourceHanSansSC-Heavy.otf` 提取的标题专用子集，内部名称为 `SMA Title Han Heavy`，仅包含“军用绿萌军备”需要的字形。本地托管，首页预加载；文章正文和其他栏目继续使用系统字体。如果修改中文品牌名称，需要重新提取对应字形并同步更新 `unicode-range`，缺失的字会回退到系统字体。
 
-原字体由 Celestial Phineas / Project Welai 制作，使用 SIL Open Font License 1.1；完整许可保存在 `public/fonts/OFL-GlowSans.txt`，字体文件内保留原作者与许可信息。子集使用 fonteditor-core 2.6.3 转换为 WOFF2，该工具不属于网站运行或构建依赖。
+原字体由 Adobe 等共同制作，使用 SIL Open Font License 1.1；完整许可保存在 `public/fonts/OFL-SourceHanSans.txt`，字体文件内保留原作者与许可信息。子集已更名以遵守保留字体名称要求，使用 FontTools 4.67.0 提取并压缩为 WOFF2，保留原始字形轮廓；该工具不属于网站运行或构建依赖。
 
 ## 目录结构
 
